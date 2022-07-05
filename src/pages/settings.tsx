@@ -1,7 +1,6 @@
 import React, { FunctionComponent, useState } from 'react'
 import { setCookies, getCookie } from 'cookies-next'
 import { useRouter } from 'next/router'
-import MainLayout from '@/layouts/mains'
 import FormContextProvider from '@/providers/formContextProvider'
 import Input from '@/components/inputs'
 import Button from '@/components/buttons'
@@ -13,15 +12,9 @@ import {
 
 const Settings: FunctionComponent = () => {
     return (
-        <MainLayout>
-            <div className="fixed z-0 bg-gray-600 w-full h-full top-0 left-0">
-            </div>
-            <div className="fixed flex justify-center items-center flex-col z-10 p-4 bg-white rounded-lg h-5/6 w-3/4 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <div className="w-1/2">
-                    <UpdateTool />
-                </div>
-            </div>
-        </MainLayout>
+        <div>
+            <UpdateTool />
+        </div>
     )
 }
 
@@ -79,8 +72,7 @@ const UpdateTool: FunctionComponent = () => {
                 onChange={(value: string | undefined) => setTitle(value)} />
             <Button
                 title="Update"
-                type="submit"
-                rounded />
+                type="submit" />
         </FormContextProvider>
     )
 }
