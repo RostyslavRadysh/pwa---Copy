@@ -1,82 +1,76 @@
 import React, { FunctionComponent, useState } from 'react'
-import { setCookies, removeCookies } from 'cookies-next'
 import { useRouter } from 'next/router'
-import { v4 as uuidv4 } from 'uuid'
-import MainLayout from '@/layouts/mains'
+import { setCookies, removeCookies } from 'cookies-next'
+import { connector } from '@/utils/propsRedux'
+import { useToast } from '@/providers/toastContextProvider'
 import FormContextProvider from '@/providers/formContextProvider'
 import Input from '@/components/inputs'
 import Button from '@/components/buttons'
-import ITaskDevice from '@/models/iTaskDevice'
 import { useAddITaskDeviceMutation } from '@/slicers/apis/iTaskDeviceApi'
 
 const Index: FunctionComponent = () => {
-    return (
-        <MainLayout>
-            <div className="fixed z-0 bg-gray-600 w-full h-full top-0 left-0">
-            </div>
-            <div className="fixed flex justify-center items-center flex-col z-10 p-4 bg-white rounded-lg h-5/6 w-3/4 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <div className="w-1/2">
-                    <CreateTool />
-                </div>
-            </div>
-        </MainLayout>
-    )
-}
-
-const CreateTool: FunctionComponent = () => {
+    const { notify } = useToast()
     const router = useRouter()
 
-    const [addITaskDevice, { error }] = useAddITaskDeviceMutation()
+    const [addITaskDevice] = useAddITaskDeviceMutation()
 
     const [webServiceUrl, setWebServiceUrl] = useState<string | undefined>(undefined)
     const [title, setTitle] = useState<string | undefined>(undefined)
 
-    const onSubmit = () => {
+    const onHandleCreateDevice = async () => {
         if (webServiceUrl && title) {
             setCookies('webServiceUrl', webServiceUrl)
+            setCookies('title', title)
 
-            var key = uuidv4()
-            const itaskdevice = {
-                title: title,
-                key: key
-            } as ITaskDevice
-            addITaskDevice(itaskdevice)
+            const result = await addITaskDevice({
+                title: title
+            })
 
-            if(!error) {
-                setCookies('title', title)
-                setCookies('key', key)
-                router.push('/buttons')
-            } 
-            else {
+            if ('error' in result) {
                 removeCookies('webServiceUrl')
+                removeCookies('title')
+                notify('Something bad happened')
+            } else {
+                router.push('/buttons')
             }
         }
     }
 
     return (
-        <FormContextProvider onSubmit={onSubmit}>
-            <Input
-                label="Web Service"
-                placeholder="Input Web Service"
-                errorMessage="Incorrect Web Service"
-                required
-                minLength={1}
-                maxLength={64}
-                onChange={(value: string | undefined) => setWebServiceUrl(value)} />
-            <Input
-                label="Device title"
-                placeholder="Input Device title"
-                errorMessage="Incorrect Device title"
-                required
-                minLength={1}
-                maxLength={64}
-                onChange={(value: string | undefined) => setTitle(value)} />
-            <Button
-                title="Connect"
-                type="submit"
-                rounded />
-        </FormContextProvider>
+        <div className="bg-gray-200 w-screen h-screen flex justify-center items-center">
+            <div className="w-full max-w-xs">
+                <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+                    <FormContextProvider onSubmit={onHandleCreateDevice}>
+                        <Input
+                            label="Web Service"
+                            placeholder="Web Service"
+                            errorMessage="Incorrect Web Service"
+                            required
+                            minLength={1}
+                            maxLength={64}
+                            isUrl
+                            onChange={(value: string | undefined) => setWebServiceUrl(value)} />
+                        <Input
+                            label="Device name"
+                            placeholder="Device name"
+                            errorMessage="Incorrect Device name"
+                            required
+                            minLength={1}
+                            maxLength={64}
+                            onChange={(value: string | undefined) => setTitle(value)} />
+                        <div className="flex justify-center items-center">
+                            <Button
+                                title="Connect"
+                                type="submit" />
+                        </div>
+                    </FormContextProvider>
+                </div>
+                <p className="text-center text-gray-500 text-xs">
+                    Copyright &copy; 2001-2022 dir/Active. All rights reserved.
+                </p>
+            </div>
+        </div>
     )
 }
 
-export default Index
+export default connector(Index)

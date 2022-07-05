@@ -1,6 +1,5 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit'
 import { setupListeners } from '@reduxjs/toolkit/query'
-import thunk from 'redux-thunk'
 import { persistReducer } from 'redux-persist'
 import storage from '@/utils/storage'
 import iTaskDeviceApi from '@/slicers/apis/iTaskDeviceApi'
@@ -24,12 +23,13 @@ const persistedReducer = persistReducer(persistConfig, reducers)
 
 const store = configureStore({
     reducer: persistedReducer,
-    middleware: [
-        thunk, 
-        iTaskDeviceApi.middleware,
-        iTaskMenuApi.middleware,
-        iTaskMenuButtonApi.middleware
-    ]
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware({
+            serializableCheck: false
+        })
+        .concat(iTaskDeviceApi.middleware)
+        .concat(iTaskMenuApi.middleware)
+        .concat(iTaskMenuButtonApi.middleware)
 })
 
 setupListeners(store.dispatch)

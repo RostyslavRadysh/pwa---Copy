@@ -1,9 +1,25 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { getCookie } from 'cookies-next'
+import { 
+    createApi, 
+    fetchBaseQuery, 
+    BaseQueryFn, 
+    FetchArgs, 
+    FetchBaseQueryError 
+} from '@reduxjs/toolkit/query/react'
 import ITaskMenuButton from '@/models/iTaskMenuButton'
+
+const dynamicBaseQuery: BaseQueryFn<string | FetchArgs,
+  unknown,
+  FetchBaseQueryError> = async (args, WebApi, extraOptions) => {
+    const baseUrl = `${getCookie('webServiceUrl')}/api/`
+    const rawBaseQuery = fetchBaseQuery({ baseUrl })
+    return rawBaseQuery(args, WebApi, extraOptions)
+};
 
 const iTaskMenuButtonApi = createApi({
     reducerPath: 'iTaskMenuButtonApi',
-    baseQuery: fetchBaseQuery({ baseUrl: '/api/' }),
+    baseQuery: dynamicBaseQuery,
+    refetchOnMountOrArgChange: true,
     tagTypes: ['iTaskMenuButtons'],
     endpoints: (build) => ({
         getITaskMenuButtons: build.query<{ entities: ITaskMenuButton[] }, void>({

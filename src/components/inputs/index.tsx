@@ -12,27 +12,38 @@ export interface InputProps {
     label?: string
     defaultValue?: string
     placeholder?: string
-    hint?: string
     errorMessage?: string
     autoComplete?: AutoCompleteType
-    disabled?: boolean
     required?: boolean
     minLength?: number
     maxLength?: number
+    isUrl?: boolean
     onChange?: (value: string | undefined) => void
 }
 
-export const Input: FunctionComponent<InputProps> = ({ type, label, defaultValue, placeholder, hint, errorMessage, autoComplete, disabled, required, minLength, maxLength, onChange }: InputProps) => {
+export const Input: FunctionComponent<InputProps> = ({ type, label, defaultValue, placeholder, errorMessage, autoComplete, required, minLength, maxLength, isUrl, onChange }: InputProps) => {
     const { isFormDirty } = useForm()
     const [error, setError] = useState<boolean>(false)
     const [isDirty, setIsDirty] = useState<boolean>(isFormDirty)
     const [value, setValue] = useState<string>(defaultValue ?? '')
+
+    const isValidUrl = (text: string) => {
+        try {
+          const url = new URL(text)
+          return url.protocol === 'http:' || url.protocol === 'https:'
+        } catch (error: unknown) {
+          return false
+        }
+    }
+
     useEffect(() => {
         if (isFormDirty && !isDirty) setIsDirty(true)
     }, [isFormDirty, isDirty])
+
     useEffect(() => {
-        if (!disabled && isDirty) {
+        if (isDirty) {
             switch (true) {
+                case isUrl && !isValidUrl(value):
                 case required && value.length === 0:
                 case minLength && value.length < minLength:
                 case maxLength && value.length > maxLength: {
@@ -47,36 +58,32 @@ export const Input: FunctionComponent<InputProps> = ({ type, label, defaultValue
                 }
             }
         }
-    }, [value, isDirty, disabled, required, minLength, maxLength, onChange])
+    }, [value, isDirty, required, minLength, maxLength, isUrl, onChange])
 
     return (
         <div className="flex flex-col">
             {label && (
-                <label className="mb-2 text-lg text-gray-900">{label}</label>
+                <label className="block text-gray-700 text-sm font-bold mb-2">{label}</label>
             )}
             <input
-                className={`${error ? 'border-red-500' : 'border-gray-500'} h-12 p-2 text-lg disabled:text-gray-500 text-gray-900 placeholder-gray-500 placeholder-opacity-50 border rounded-lg outline-none focus:outline-none bg-white disabled:bg-gray-100 disabled:cursor-not-allowed`}
+                className={`${error ? 'border-red-500' : ''} border shadow appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`}
                 type={type}
                 value={value}
                 placeholder={placeholder}
                 minLength={minLength}
                 maxLength={maxLength}
                 autoComplete={autoComplete}
-                disabled={disabled}
                 onBlur={() => setIsDirty(true)}
                 onChange={event => setValue(event.currentTarget.value)} />
-            {hint && (
-                <div className="mt-1 text-gray-500">{hint}</div>
-            )}
             {error && (
-                <div className={`${hint ? 'mt-0' : 'mt-1'} text-red-500`}>{errorMessage}</div>
+                <div className="mt-1 text-red-500 text-xs">{errorMessage}</div>
             )}
         </div>
     )
 }
 
 Input.defaultProps = {
-    type: "text",
+    type: 'text',
     autoComplete: 'off'
 }
 

@@ -35,9 +35,8 @@ const UpdateTool: FunctionComponent = () => {
 
     const onSubmit = () => {
         if (title) {
-            const key = getCookie('key')
             const iTaskDevice = {
-                id: iTaskDevices?.entities.find(iTaskDevice => iTaskDevice.key === key)?.id,
+                id: iTaskDevices?.entities.find(iTaskDevice => iTaskDevice.title === "1234")?.id,
                 iTaskMenuId: {
                     isChanged: false
                 },
@@ -47,9 +46,6 @@ const UpdateTool: FunctionComponent = () => {
                 title: {
                     value: title,
                     isChanged: true
-                },
-                key: {
-                    isChanged: false
                 },
                 isPinCode: {
                     isChanged: false

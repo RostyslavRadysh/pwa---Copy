@@ -1,9 +1,25 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { getCookie } from 'cookies-next'
+import { 
+    createApi, 
+    fetchBaseQuery, 
+    BaseQueryFn, 
+    FetchArgs, 
+    FetchBaseQueryError 
+} from '@reduxjs/toolkit/query/react'
 import ITaskDevice from '@/models/iTaskDevice'
+
+const dynamicBaseQuery: BaseQueryFn<string | FetchArgs,
+  unknown,
+  FetchBaseQueryError> = async (args, WebApi, extraOptions) => {
+    const baseUrl = `${getCookie('webServiceUrl')}/api/`
+    const rawBaseQuery = fetchBaseQuery({ baseUrl })
+    return rawBaseQuery(args, WebApi, extraOptions)
+};
 
 const iTaskDeviceApi = createApi({
     reducerPath: 'iTaskDeviceApi',
-    baseQuery: fetchBaseQuery({ baseUrl: '/api/' }),
+    baseQuery: dynamicBaseQuery,
+    refetchOnMountOrArgChange: true,
     tagTypes: ['ITaskDevices'],
     endpoints: (build) => ({
         getITaskDevices: build.query<{ entities: ITaskDevice[] }, void>({
@@ -15,7 +31,7 @@ const iTaskDeviceApi = createApi({
                 ] : [{ type: 'ITaskDevices', id: 'LIST' }]
         }),
         addITaskDevice: build.mutation<ITaskDevice, Partial<ITaskDevice>>({
-            query(data) {
+            query: (data) => {
                 const { id, ...body } = data
                 return {
                     url: 'itaskdevices',
