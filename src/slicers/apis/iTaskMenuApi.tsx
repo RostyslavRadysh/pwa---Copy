@@ -14,7 +14,7 @@ const dynamicBaseQuery: BaseQueryFn<string | FetchArgs,
     const baseUrl = `${getCookie('webServiceUrl')}/api/`
     const rawBaseQuery = fetchBaseQuery({ baseUrl })
     return rawBaseQuery(args, WebApi, extraOptions)
-};
+}
 
 const iTaskMenuApi = createApi({
     reducerPath: 'iTaskMenuApi',
