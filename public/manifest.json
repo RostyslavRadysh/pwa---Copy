@@ -2,7 +2,6 @@
     "short_name": "iTask",
     "name": "iTask Application",
     "description": "iTask description",
-    "scope": "/",
     "background_color": "#FFFFFF",
     "theme_color": "#FFFFFF",
     "start_url": "/?utm_source=pwa",

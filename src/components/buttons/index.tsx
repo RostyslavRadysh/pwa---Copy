@@ -17,7 +17,19 @@ export interface ButtonProps {
 const Button: FunctionComponent<ButtonProps> = ({ title, icon, type, onClick }: ButtonProps) => (
   <div>
       <button
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+        className="inline-block 
+        px-6 
+        py-2.5 
+        bg-blue-600 
+        text-white 
+        font-medium 
+        text-xs 
+        leading-tight 
+        rounded 
+        shadow-md 
+        hover:bg-blue-700 hover:shadow-lg 
+        focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 
+        active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out"
         type={type}
         onClick={onClick}>
           <div className="flex flex-col text-white">

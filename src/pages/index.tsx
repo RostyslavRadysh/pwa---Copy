@@ -30,7 +30,7 @@ const Index: FunctionComponent = () => {
 
                 router.push('/buttons')
             }
-        } catch (error) {
+        } catch (error: unknown) {
             removeCookies('webServiceUrl')
             removeCookies('title')
 
@@ -54,36 +54,31 @@ const Index: FunctionComponent = () => {
 
     return (
         <div className="bg-gray-200 w-screen h-screen flex justify-center items-center">
-            <div className="w-full max-w-xs">
-                <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-                    <FormContextProvider onSubmit={onHandleCreateDevice}>
-                        <Input
-                            label="Web Service"
-                            placeholder="Web Service"
-                            errorMessage="Incorrect Web Service"
-                            required
-                            minLength={1}
-                            maxLength={64}
-                            isUrl
-                            onChange={(value: string | undefined) => setWebServiceUrl(value)} />
-                        <Input
-                            label="Device name"
-                            placeholder="Device name"
-                            errorMessage="Incorrect Device name"
-                            required
-                            minLength={1}
-                            maxLength={64}
-                            onChange={(value: string | undefined) => setTitle(value)} />
-                        <div className="flex justify-center items-center">
-                            <Button
-                                title="Connect"
-                                type="submit" />
-                        </div>
-                    </FormContextProvider>
-                </div>
-                <p className="text-center text-gray-500 text-xs">
-                    Copyright &copy; 2001-2022 dir/Active. All rights reserved.
-                </p>
+            <div className="block p-6 rounded-lg shadow-lg bg-white max-w-sm">
+                <FormContextProvider onSubmit={onHandleCreateDevice}>
+                    <Input
+                        label="Web Service"
+                        placeholder="Web Service"
+                        errorMessage="Incorrect Web Service"
+                        required
+                        minLength={1}
+                        maxLength={64}
+                        isUrl
+                        onChange={(value: string | undefined) => setWebServiceUrl(value)} />
+                    <Input
+                        label="Device name"
+                        placeholder="Device name"
+                        errorMessage="Incorrect Device name"
+                        required
+                        minLength={1}
+                        maxLength={64}
+                        onChange={(value: string | undefined) => setTitle(value)} />
+                    <div className="flex space-x-2 justify-center">
+                        <Button
+                            title="Connect"
+                            type="submit" />
+                    </div>
+                </FormContextProvider>
             </div>
         </div>
     )
