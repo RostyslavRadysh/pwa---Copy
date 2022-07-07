@@ -1,11 +1,13 @@
 {
-    "name": "iTask Application",
     "short_name": "iTask",
-    "theme_color": "#FFFFFF",
-    "background_color": "#FFFFFF",
-    "display": "standalone",
-    "start_url": "/?standalone=true",
-    "orientation": "portrait",
+    "name": "iTask Application",
+    "description": "iTask description",
+    "scope": "/fullscreen/",
+    "background_color": "#5A0FC8",
+    "theme_color": "#3c0a86",
+    "start_url": "/{fullscreen}/?utm_source=pwa",
+    "display": "fullscreen",
+    "orientation": "landscape",
     "icons": [
       {
         "src": "icons/icon-72x72.png",
