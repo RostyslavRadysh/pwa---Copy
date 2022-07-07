@@ -4,9 +4,9 @@ import { getCookie, removeCookies } from 'cookies-next'
 import { connector } from '@/utils/propsRedux'
 import { useToast } from '@/providers/toastContextProvider'
 import { 
-    useGetITaskDevicesQuery,
-    useDeleteITaskDeviceMutation 
-} from '@/slicers/apis/iTaskDeviceApi'
+    useGetDevicesQuery,
+    useDeleteDeviceMutation 
+} from '@/slicers/apis/deviceApi'
 import { useGetITaskMenusQuery } from '@/slicers/apis/iTaskMenuApi'
 import { useGetITaskMenuButtonsQuery } from '@/slicers/apis/iTaskMenuButtonApi'
 import axios from 'axios'
@@ -17,8 +17,8 @@ const Buttons:  FunctionComponent = () => {
     const { notify } = useToast()
     const router = useRouter()
 
-    const { data: iTaskDevices, refetch: refreshITaskDevices } = useGetITaskDevicesQuery()
-    const [deleteITaskDevice] = useDeleteITaskDeviceMutation()
+    const { data: iTaskDevices, refetch: refreshDevices } = useGetDevicesQuery()
+    const [deleteDevice] = useDeleteDeviceMutation()
 
     const { data: iTaskMenus, refetch: refreshITaskMenus } = useGetITaskMenusQuery()
 
@@ -30,7 +30,7 @@ const Buttons:  FunctionComponent = () => {
     var buttons = iTaskMenuButtons?.entities.filter(item => item.iTaskMenuId === menu?.id)
 
     const onHandleRefresh = () => {
-        refreshITaskDevices()
+        refreshDevices()
         refreshITaskMenus()
         refreshITaskMenuButtons()
     }
@@ -40,7 +40,7 @@ const Buttons:  FunctionComponent = () => {
         axios.get(baseUrl)
     }
     const onHandleRemoveDevice = () => {
-        var result = deleteITaskDevice({
+        var result = deleteDevice({
             id: device?.id as number
         })
 

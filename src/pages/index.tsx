@@ -6,32 +6,48 @@ import { useToast } from '@/providers/toastContextProvider'
 import FormContextProvider from '@/providers/formContextProvider'
 import Input from '@/components/inputs'
 import Button from '@/components/buttons'
-import { useAddITaskDeviceMutation } from '@/slicers/apis/iTaskDeviceApi'
+import { useAddDeviceMutation } from '@/slicers/apis/deviceApi'
+import { isFetchBaseQueryError, isErrorWithMessage, stripTrailingSlash } from '@/utils/helpers'
 
 const Index: FunctionComponent = () => {
     const { notify } = useToast()
     const router = useRouter()
 
-    const [addITaskDevice] = useAddITaskDeviceMutation()
+    const [addDevice] = useAddDeviceMutation()
 
     const [webServiceUrl, setWebServiceUrl] = useState<string | undefined>(undefined)
     const [title, setTitle] = useState<string | undefined>(undefined)
 
     const onHandleCreateDevice = async () => {
-        if (webServiceUrl && title) {
-            setCookies('webServiceUrl', webServiceUrl)
-            setCookies('title', title)
+        try {
+            if (webServiceUrl && title) {
+                setCookies('webServiceUrl', stripTrailingSlash(webServiceUrl))
+                setCookies('title', title)
 
-            const result = await addITaskDevice({
-                title: title
-            })
+                await addDevice({
+                    title: title
+                }).unwrap()
 
-            if ('error' in result) {
-                removeCookies('webServiceUrl')
-                removeCookies('title')
-                notify('Something bad happened')
-            } else {
                 router.push('/buttons')
+            }
+        } catch (error) {
+            removeCookies('webServiceUrl')
+            removeCookies('title')
+
+            if (isFetchBaseQueryError(error)) {
+                const errorMessage = 'error' in error ? error.error : JSON.stringify(error.data)
+                switch(error.status) {
+                    case 'FETCH_ERROR': {
+                        notify('Web Service is invalid')
+                        break
+                    }
+                    default: {
+                        notify(errorMessage)
+                        break
+                    }
+                }
+            } else if (isErrorWithMessage(error)) {
+                notify(error.message)
             }
         }
     }

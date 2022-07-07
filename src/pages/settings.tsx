@@ -4,11 +4,11 @@ import { useRouter } from 'next/router'
 import FormContextProvider from '@/providers/formContextProvider'
 import Input from '@/components/inputs'
 import Button from '@/components/buttons'
-import ITaskDevice from '@/models/iTaskDevice'
+import Device from '@/models/device'
 import { 
-    useGetITaskDevicesQuery,
-    useUpdateITaskDeviceMutation 
-} from '@/slicers/apis/iTaskDeviceApi'
+    useGetDevicesQuery,
+    useUpdateDeviceMutation 
+} from '@/slicers/apis/deviceApi'
 
 const Settings: FunctionComponent = () => {
     return (
@@ -21,8 +21,8 @@ const Settings: FunctionComponent = () => {
 const UpdateTool: FunctionComponent = () => {
     const router = useRouter()
 
-    const { data: iTaskDevices } = useGetITaskDevicesQuery()
-    const [updateITaskDevice, { error }] = useUpdateITaskDeviceMutation()
+    const { data: iTaskDevices } = useGetDevicesQuery()
+    const [updateDevice, { error }] = useUpdateDeviceMutation()
 
     const [title, setTitle] = useState<string | undefined>(`${getCookie('title')}`)
 
@@ -49,8 +49,8 @@ const UpdateTool: FunctionComponent = () => {
                 lastConnection: {
                     isChanged: false
                 }
-            } as ITaskDevice
-            updateITaskDevice(iTaskDevice)
+            } as Device
+            updateDevice(iTaskDevice)
 
             if(!error) {
                 setCookies('title', title)

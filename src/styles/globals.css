@@ -1,3 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.element {
+    height: env(safe-area-inset-top);
+    width: env(safe-area-inset-left);
+    margin: env(safe-area-inset-right);
+    padding: env(safe-area-inset-bottom, 20px);
+}

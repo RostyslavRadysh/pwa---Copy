@@ -6,7 +6,7 @@ import {
     FetchArgs, 
     FetchBaseQueryError 
 } from '@reduxjs/toolkit/query/react'
-import ITaskDevice from '@/models/iTaskDevice'
+import Device from '@/models/device'
 
 const dynamicBaseQuery: BaseQueryFn<string | FetchArgs,
   unknown,
@@ -14,23 +14,23 @@ const dynamicBaseQuery: BaseQueryFn<string | FetchArgs,
     const baseUrl = `${getCookie('webServiceUrl')}/api/`
     const rawBaseQuery = fetchBaseQuery({ baseUrl })
     return rawBaseQuery(args, WebApi, extraOptions)
-};
+}
 
-const iTaskDeviceApi = createApi({
-    reducerPath: 'iTaskDeviceApi',
+const deviceApi = createApi({
+    reducerPath: 'deviceApi',
     baseQuery: dynamicBaseQuery,
     refetchOnMountOrArgChange: true,
-    tagTypes: ['ITaskDevices'],
+    tagTypes: ['devices'],
     endpoints: (build) => ({
-        getITaskDevices: build.query<{ entities: ITaskDevice[] }, void>({
+        getDevices: build.query<{ entities: Device[] }, void>({
             query: () => 'itaskdevices',
             providesTags: (result) =>
                 result ? [
-                    ...result.entities.map(({ id }) => ({ type: 'ITaskDevices', id } as const)),
-                    { type: 'ITaskDevices', id: 'LIST' }
-                ] : [{ type: 'ITaskDevices', id: 'LIST' }]
+                    ...result.entities.map(({ id }) => ({ type: 'devices', id } as const)),
+                    { type: 'devices', id: 'LIST' }
+                ] : [{ type: 'devices', id: 'LIST' }]
         }),
-        addITaskDevice: build.mutation<ITaskDevice, Partial<ITaskDevice>>({
+        addDevice: build.mutation<void, Partial<Device>>({
             query: (data) => {
                 const { id, ...body } = data
                 return {
@@ -39,9 +39,9 @@ const iTaskDeviceApi = createApi({
                     body
                 }
             },
-            invalidatesTags: [{ type: 'ITaskDevices', id: 'LIST' }]
+            invalidatesTags: [{ type: 'devices', id: 'LIST' }]
         }),
-        updateITaskDevice: build.mutation<ITaskDevice, Partial<ITaskDevice>>({
+        updateDevice: build.mutation<Device, Partial<Device>>({
             query(data) {
                 const body = JSON.stringify(data)
                 return {
@@ -52,10 +52,10 @@ const iTaskDeviceApi = createApi({
             },
             invalidatesTags: (result) => {
                 var id = result?.id
-                return [{ type: 'ITaskDevices', id }]
+                return [{ type: 'devices', id }]
             }
         }),
-        deleteITaskDevice: build.mutation<{ success: boolean; id: string }, { id: number }>({
+        deleteDevice: build.mutation<{ success: boolean; id: string }, { id: number }>({
             query(data) {
                 return {
                     url: `itaskdevices`,
@@ -65,17 +65,17 @@ const iTaskDeviceApi = createApi({
             },
             invalidatesTags: (result) => {
                 var id = result?.id
-                return [{ type: 'ITaskDevices', id }]
+                return [{ type: 'devices', id }]
             }
         })
     })
 })
 
 export const {
-    useAddITaskDeviceMutation,
-    useGetITaskDevicesQuery,
-    useUpdateITaskDeviceMutation,
-    useDeleteITaskDeviceMutation
-} = iTaskDeviceApi
+    useAddDeviceMutation,
+    useGetDevicesQuery,
+    useUpdateDeviceMutation,
+    useDeleteDeviceMutation
+} = deviceApi
 
-export default iTaskDeviceApi
+export default deviceApi

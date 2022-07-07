@@ -2,7 +2,7 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit'
 import { setupListeners } from '@reduxjs/toolkit/query'
 import { persistReducer } from 'redux-persist'
 import storage from '@/utils/storage'
-import iTaskDeviceApi from '@/slicers/apis/iTaskDeviceApi'
+import deviceApi from '@/slicers/apis/deviceApi'
 import iTaskMenuApi from '@/slicers/apis/iTaskMenuApi'
 import iTaskMenuButtonApi from '@/slicers/apis/iTaskMenuButtonApi'
 import configSlice from '@/slicers/configSlice'
@@ -14,7 +14,7 @@ const persistConfig = {
 
 const reducers = combineReducers({
     config: configSlice,
-    [iTaskDeviceApi.reducerPath]: iTaskDeviceApi.reducer,
+    [deviceApi.reducerPath]: deviceApi.reducer,
     [iTaskMenuApi.reducerPath]: iTaskMenuApi.reducer,
     [iTaskMenuButtonApi.reducerPath]: iTaskMenuButtonApi.reducer
 })
@@ -27,7 +27,7 @@ const store = configureStore({
         getDefaultMiddleware({
             serializableCheck: false
         })
-        .concat(iTaskDeviceApi.middleware)
+        .concat(deviceApi.middleware)
         .concat(iTaskMenuApi.middleware)
         .concat(iTaskMenuButtonApi.middleware)
 })
