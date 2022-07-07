@@ -3,9 +3,9 @@
     "name": "iTask Application",
     "description": "iTask description",
     "scope": "/fullscreen/",
-    "background_color": "#5A0FC8",
-    "theme_color": "#3c0a86",
-    "start_url": "/{fullscreen}/?utm_source=pwa",
+    "background_color": "#FFFFFF",
+    "theme_color": "#FFFFFF",
+    "start_url": "/fullscreen/?utm_source=pwa",
     "display": "fullscreen",
     "orientation": "landscape",
     "icons": [
