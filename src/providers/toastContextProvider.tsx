@@ -33,13 +33,26 @@ const ToastContextProvider: FunctionComponent<PropsWithChildren<ToastContextProv
     return (
         <ToastContext.Provider value={{ notify }}>
             <Portal selector="#main">
-                <div className="fixed z-40 top-4 right-4">
-                    <div className="flex flex-col w-56 space-y-2">
+                <div className="fixed 
+                z-40 
+                top-4 
+                right-4">
+                    <div className="flex flex-col 
+                    w-56 
+                    space-y-2">
                         {items?.map((item, i) => (
                             <div
-                                className="flex flex-row items-center justify-between p-4 shadow-md bg-blue-500"
+                                className="inline-block 
+                                p-4
+                                bg-blue-600 
+                                text-white 
+                                font-medium 
+                                text-sm 
+                                leading-tight 
+                                rounded 
+                                shadow-md"
                                 key={i}>
-                                <span className="text-white">{item}</span>
+                                {item}
                             </div>
                         ))}
                     </div>

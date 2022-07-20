@@ -5,18 +5,6 @@
       "@/components/*": [
         "src/components/*"
       ],
-      "@/documents/*": [
-        "src/documents/*"
-      ],
-      "@/jsons/*": [
-        "src/jsons/*"
-      ],
-      "@/layouts/*": [
-        "src/layouts/*"
-      ],
-      "@/locales/*": [
-        "locales/*"
-      ],
       "@/models/*": [
         "src/models/*"
       ],
@@ -34,21 +22,18 @@
       ],
       "@/utils/*": [
         "src/utils/*"
-      ],
-      "@/images/*": [
-        "public/images/*"
       ]
     },
     "jsx": "preserve",
     "lib": [
-      "es6",
-      "dom",
-      "dom.iterable"
+      "ESNext",
+      "DOM",
+      "DOM.Iterable"
     ],
     "removeComments": true,
     "moduleResolution": "node",
-    "module": "commonjs",
-    "target": "es6",
+    "module": "ESNext",
+    "target": "ESNext",
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowJs": true,

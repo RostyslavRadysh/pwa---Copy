@@ -1,5 +1,5 @@
 interface PatchEntityModel {
-    value: number | string
+    value: boolean | number | string
     isChanged: boolean
 }
 

@@ -23,7 +23,7 @@ const Button: FunctionComponent<ButtonProps> = ({ title, icon, type, onClick }: 
         bg-blue-600 
         text-white 
         font-medium 
-        text-xs 
+        text-sm
         leading-tight 
         rounded 
         shadow-md 
@@ -32,7 +32,8 @@ const Button: FunctionComponent<ButtonProps> = ({ title, icon, type, onClick }: 
         active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out"
         type={type}
         onClick={onClick}>
-          <div className="flex flex-col text-white">
+          <div className="flex flex-col 
+            text-white">
               {icon && (
                   <Image className="text-white" src="/icons/icons-ambulance.svg" alt="me" width="64" height="64" />
               )}
@@ -41,7 +42,9 @@ const Button: FunctionComponent<ButtonProps> = ({ title, icon, type, onClick }: 
               )}
           </div>
       </button>
-      <div className="flex flex-row justify-center text-lg">
+      <div className="flex flex-row 
+          justify-center 
+          text-lg">
           {icon && title && (
               `${title}`
           )}

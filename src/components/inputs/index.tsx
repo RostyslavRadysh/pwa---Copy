@@ -63,7 +63,9 @@ export const Input: FunctionComponent<InputProps> = ({ type, label, defaultValue
     return (
         <div className="flex flex-col">
             {label && (
-                <label className="inline-block mb-2 text-gray-700">{label}</label>
+                <label className="inline-block 
+                mb-2 
+                text-gray-700">{label}</label>
             )}
             <input
                 className={`border border-solid ${error ? 'border-red-500' : 'border-gray-300'} 
