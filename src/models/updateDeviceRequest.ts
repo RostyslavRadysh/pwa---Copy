@@ -1,6 +1,6 @@
 import PatchEntityModel from "@/models/patchEntityModel"
 
-export type PutDeviceRequest = {
+export type UpdateDeviceRequest = {
     id: number
     iTaskMenuId: PatchEntityModel
     departmentId: PatchEntityModel

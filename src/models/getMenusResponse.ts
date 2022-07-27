@@ -1,9 +1,4 @@
-export type Menu = {
-    id: number
-    title: string
-    rows: number
-    columns: number
-}
+import type { Menu } from '@/models/menu'
 
 export type GetMenusResponse = {
     entities: Menu[]

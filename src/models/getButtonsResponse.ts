@@ -1,14 +1,4 @@
-export type Button = {
-    id: number
-    iTaskMenuId: number
-    taskPresetId: number
-    row: number
-    column: number
-    icon: number
-    buttonLabel: string
-    feedbackTime: number
-    isAllowUndo: number
-}
+import type { Button } from '@/models/button'
 
 export type GetButtonsResponse = {
     entities: Button[]

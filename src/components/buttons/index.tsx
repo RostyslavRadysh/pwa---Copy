@@ -1,60 +1,54 @@
-import React, { FunctionComponent } from 'react'
-import Image from 'next/image'
+import React, { FunctionComponent,
+  useMemo
+} from 'react'
 
 const buttons = ['button', 'submit'] as const
 export type ButtonType = typeof buttons[number]
 
-const icons = ['ambulance'] as const
-export type IconType = typeof icons[number]
+const colors = ['blue', 'purple'] as const
+export type ColorType = typeof colors[number]
 
 export interface ButtonProps {
   title?: string
-  icon?: IconType
   type?: ButtonType
+  color?: ColorType
   onClick?: () => void
 }
 
-const Button: FunctionComponent<ButtonProps> = ({ title, icon, type, onClick }: ButtonProps) => (
-  <div>
-      <button
-        className="inline-block 
-        px-6 
-        py-2.5 
-        bg-blue-600 
-        text-white 
-        font-medium 
-        text-sm
-        leading-tight 
-        rounded 
-        shadow-md 
-        hover:bg-blue-700 hover:shadow-lg 
-        focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 
-        active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out"
-        type={type}
-        onClick={onClick}>
-          <div className="flex flex-col 
-            text-white">
-              {icon && (
-                  <Image className="text-white" src="/icons/icons-ambulance.svg" alt="me" width="64" height="64" />
-              )}
-              {!icon && title && (
-                  `${title}`
-              )}
-          </div>
-      </button>
-      <div className="flex flex-row 
-          justify-center 
-          text-lg">
-          {icon && title && (
-              `${title}`
-          )}
-      </div>
-  </div>
-)
+const Button: FunctionComponent<ButtonProps> = ({ title, type, color, onClick }: ButtonProps) => {
+  const styles = useMemo(() => {
+    let css: string[] = []
+    switch (color) {
+      case 'blue': {
+        css.push('bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-800')
+        break
+      }
+      case 'purple': {
+        css.push('bg-purple-600 hover:bg-purple-700 focus:bg-purple-700 active:bg-purple-800')
+        break
+      }
+      default: { throw new Error('ButtonComponent: The color is incorrect') }
+    }
+    return css
+  }, [color])
 
+  return (
+    <div>
+        <button className={`inline-block px-6 py-3 text-white font-medium text-sm leading-tight rounded shadow-md transition duration-150 ease-in-out
+          hover:shadow-lg 
+          focus:shadow-lg focus:outline-none focus:ring-0 
+          active:shadow-lg ${styles.join(' ')}`}
+          type={type}
+          onClick={onClick}>
+            {title}
+        </button>
+    </div>
+  )
+}
 
 Button.defaultProps = {
-  type: 'button'
+  type: 'button',
+  color: 'blue'
 }
 
 export default Button

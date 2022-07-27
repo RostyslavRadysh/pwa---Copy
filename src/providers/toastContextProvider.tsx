@@ -1,64 +1,49 @@
-import React, {
-    FunctionComponent,
+import React, { FunctionComponent,
     useState,
     useEffect,
     createContext,
     useContext
 } from 'react'
 import type { PropsWithChildren } from 'react'
-import Portal from '@/components/portals'
 
 type ToastContextType = {
-    notify: (message: string) => void
+    toast: (message: string) => void
 }
 
-const ToastContext = createContext<ToastContextType>({ notify: (message: string) => console.log(message) })
+const ToastContext = createContext<ToastContextType>({ toast: (message: string) => console.log(`ToastContext: ${message}`) })
 
 interface ToastContextProviderProps { }
 
 const ToastContextProvider: FunctionComponent<PropsWithChildren<ToastContextProviderProps>> = ({ children }: PropsWithChildren<ToastContextProviderProps>) => {
-    const [items, setData] = useState<string[]>([])
+    const [messages, setMessages] = useState<string[]>([])
     useEffect(() => {
-        if (items.length !== 0) {
+        if (messages.length !== 0) {
             const timer = setTimeout(() => {
-                items.pop()
-                setData([...items])
+                messages.pop()
+                setMessages([...messages])
             }, 3000)
             return () => clearTimeout(timer)
         }
         return
-    }, [items])
-    const notify = (message: string) => setData([...items, message])
+    }, [messages])
+
+    const toast = (message: string) => setMessages([...messages, message])
 
     return (
-        <ToastContext.Provider value={{ notify }}>
-            <Portal selector="#main">
-                <div className="fixed 
-                z-40 
-                top-4 
-                right-4">
-                    <div className="flex flex-col 
-                    w-56 
-                    space-y-2">
-                        {items?.map((item, i) => (
-                            <div
-                                className="inline-block 
-                                p-4
-                                bg-blue-600 
-                                text-white 
-                                font-medium 
-                                text-sm 
-                                leading-tight 
-                                rounded 
-                                shadow-md"
-                                key={i}>
-                                {item}
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </Portal>
+        <ToastContext.Provider value={{ toast }}>
             {children}
+            <div className="absolute top-0 right-0 z-50">
+                <div className="max-w-sm">
+                    {messages?.map((message, index) => (
+                        <div className="bg-blue-600 rounded shadow-md p-4 m-3" 
+                            key={index}>
+                            <p className="text-white font-medium text-sm leading-tight">
+                                {message}
+                            </p>
+                        </div>
+                    ))}
+                </div>
+            </div>
         </ToastContext.Provider>
     )
 }

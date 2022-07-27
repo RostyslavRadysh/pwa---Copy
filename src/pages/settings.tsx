@@ -9,161 +9,91 @@ import FormContextProvider from '@/providers/formContextProvider'
 import Input from '@/components/inputs'
 import Button from '@/components/buttons'
 import { withAuth } from '@/utils/auth'
-import type { GetDevicesResponse } from '@/models/getDevicesResponse'
-import type { PutDeviceRequest } from '@/models/putDeviceRequest'
+import type { GetDeviceResponse } from '@/models/getDeviceResponse'
+import type { UpdateDeviceRequest } from '@/models/updateDeviceRequest'
 
 const Settings: FunctionComponent = () => {
     const router = useRouter()
 
-    const [devices, setDevices] = useState<GetDevicesResponse>()
+    const [title, setTitle] = useState<string>()
 
-    const key = Number(getCookie('key'))
-    const device = devices?.entities.find(device => device.id === key)
+    const updateDevice = async () => {
+        const key = Number(getCookie('key'))
+        const baseUrl = `${getCookie('baseUrl')}`
 
-    const [title, setTitle] = useState<string | undefined>(device?.title)
-
-    useEffect(() => {
-        let timer = setTimeout(async () => {
-            if ('wakeLock' in navigator) {
-                await navigator.wakeLock.request('screen');
+        const { data: device } = await axios.get<GetDeviceResponse>(`${baseUrl}/api/itaskdevices/${key}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json'
             }
+        })
 
-            const baseUrl = `${getCookie('baseUrl')}`
-
-            const { data: devices } = await axios.get<GetDevicesResponse>(`${baseUrl}/api/itaskdevices`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json'
-                }
-            })
-            
-            setDevices(devices)
-        }, 1000)
-    
-        return () => {
-            clearTimeout(timer)
-        }
-    }, [])
-
-    useEffect(() => {
-        let timer = setInterval(async () => {
-            const baseUrl = `${getCookie('baseUrl')}`
-
+        if(title && title != device?.entity.title) {
             const date = (new Date()).toJSON()
             await axios.patch<number>(`${baseUrl}/api/itaskdevices`, {
-                id: device?.id,
+                id: device?.entity.id,
                 iTaskMenuId: {
-                    value: device?.iTaskMenuId,
+                    value: device?.entity.iTaskMenuId,
                     isChanged: false
                 },
                 departmentId: {
-                    value: device?.departmentId,
+                    value: device?.entity.departmentId,
                     isChanged: false
                 },
                 title: {
-                    value: device?.title,
-                    isChanged: false
+                    value: title,
+                    isChanged: true
                 },
                 isPinCode: {
-                    value: device?.isPinCode,
+                    value: device?.entity.isPinCode,
                     isChanged: false
                 },
                 pinCode: {
-                    value: device?.pinCode,
+                    value: device?.entity.pinCode,
                     isChanged: false
                 },
                 lastConnection: {
                     value: date,
                     isChanged: true
                 }
-            } as PutDeviceRequest, {
+            } as UpdateDeviceRequest, {
                 headers: {
                     'Content-Type': 'application/json',
                     Accept: 'application/json'
                 }
             })
-
-            const { data: devices } = await axios.get<GetDevicesResponse>(`${baseUrl}/api/itaskdevices`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json'
-                }
-            })
-
-            setDevices(devices)
-        }, 10000)
     
-        return () => {
-            clearInterval(timer)
+            router.push('/')
         }
-    }, [])
+    }
 
-    const updateDevice = async () => {
-        const baseUrl = `${getCookie('baseUrl')}`
-
-        const date = (new Date()).toJSON()
-        await axios.patch<number>(`${baseUrl}/api/itaskdevices`, {
-            id: device?.id,
-            iTaskMenuId: {
-                value: device?.iTaskMenuId,
-                isChanged: false
-            },
-            departmentId: {
-                value: device?.departmentId,
-                isChanged: false
-            },
-            title: {
-                value: title,
-                isChanged: true
-            },
-            isPinCode: {
-                value: device?.isPinCode,
-                isChanged: false
-            },
-            pinCode: {
-                value: device?.pinCode,
-                isChanged: false
-            },
-            lastConnection: {
-                value: date,
-                isChanged: true
-            }
-        } as PutDeviceRequest, {
-            headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json'
-            }
-        })
-
-        const { data: devices } = await axios.get<GetDevicesResponse>(`${baseUrl}/api/itaskdevices`, {
-            headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json'
-            }
-        })
-
-        setDevices(devices)
-
+    const onHandleCancelClick = () => {
         router.push('/')
     }
 
     return (
         <div className="bg-gray-200 w-screen h-screen flex justify-center items-center">
-            <div className="block p-6 rounded-lg shadow-lg bg-white max-w-sm">
+            <div className="block p-6 rounded-lg shadow-md bg-white max-w-sm">
                 <FormContextProvider onSubmit={updateDevice}>
-                    <Input
-                        label="Device name"
-                        defaultValue={title}
-                        placeholder="Device name"
-                        errorMessage="Incorrect Device name"
-                        required
-                        minLength={1}
-                        maxLength={64}
-                        onChange={(value: string | undefined) => setTitle(value)} />
-                    <div className="flex space-x-2 justify-center">
-                        <Button
-                            title="Update"
-                            type="submit" />
+                    <div className="space-y-4">
+                        <Input
+                            label="Device name"
+                            defaultValue={title}
+                            placeholder="Device name"
+                            errorMessage="Incorrect Device name"
+                            required
+                            minLength={1}
+                            maxLength={64}
+                            onChange={(value: string | undefined) => setTitle(value)} />
+                        <div className="flex justify-between items-center">
+                            <Button
+                                title="Connect"
+                                type="submit" />
+                            <Button
+                                title="Cancel"
+                                color="purple"
+                                onClick={onHandleCancelClick} />
+                        </div>
                     </div>
                 </FormContextProvider>
             </div>

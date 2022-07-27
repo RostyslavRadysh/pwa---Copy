@@ -1,4 +1,7 @@
-import React, { FunctionComponent, useState, createContext, useContext } from 'react'
+import React, { FunctionComponent, 
+    useState, 
+    createContext, 
+    useContext } from 'react'
 import type { PropsWithChildren } from 'react'
 
 type FormContextType = {
@@ -10,7 +13,7 @@ const FormContext = createContext<FormContextType>({ isFormDirty: false })
 const autoCompletes = ['on', 'off'] as const
 export type AutoCompleteType = typeof autoCompletes[number]
 
-export interface FormProps {
+interface FormProps {
     autoComplete?: AutoCompleteType
     onSubmit: () => void
 }
@@ -21,16 +24,14 @@ const FormContextProvider: FunctionComponent<PropsWithChildren<FormProps>> = ({ 
     return (
         <FormContext.Provider value={{ isFormDirty }}>
             <div className="w-full">
-                <form
-                    autoComplete={autoComplete}
+                <form autoComplete={autoComplete}
                     onSubmit={event => {
                         event.preventDefault()
+
                         setIsFormDirty(true)
                         onSubmit()
                     }}>
-                    <div className="space-y-4">
-                        {children}
-                    </div>
+                    {children}
                 </form>
             </div>
         </FormContext.Provider>

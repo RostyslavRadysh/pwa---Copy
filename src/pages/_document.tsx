@@ -7,10 +7,10 @@ class MyDocument extends Document {
         <Head>
           <meta charSet="utf-8" />
 
-          <link rel='manifest' href='/manifest.webmanifest' />
+          <link rel='manifest' href='/manifest.json' />
           <link rel='shortcut icon' href='/favicon.ico' />
         </Head>
-        <body id="main">
+        <body>
           <Main />
           <NextScript />
         </body>
