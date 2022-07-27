@@ -1,8 +1,7 @@
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import React, { FunctionComponent, 
-    useState,
-    useEffect } from 'react'
+    useState } from 'react'
 import { getCookie } from 'cookies-next'
 import axios from 'axios'
 import FormContextProvider from '@/providers/formContextProvider'
