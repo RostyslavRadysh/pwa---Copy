@@ -5,7 +5,8 @@ export type Button = {
     row: number
     column: number
     icon: number
-    buttonLabel: string
+    label: string
+    backgroundColor: string
     feedbackTime: number
     isAllowUndo: boolean
 }

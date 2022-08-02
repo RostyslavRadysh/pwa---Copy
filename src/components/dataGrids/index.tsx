@@ -21,19 +21,20 @@ const DataGrid: FunctionComponent<DataGridProps> = ({ rows, columns, buttons, on
                     items-center 
                     w-full 
                     h-full">
-                    <div className="flex 
+                    <div className={`flex 
                         w-1/2 
                         h-1/2
                         justify-center 
                         items-center
                         rounded
                         shadow-md
-                        cursor-pointer"
+                        cursor-pointer
+                        bg-[#${button.backgroundColor}`}
                         onClick={() => onClick(button.id)}>
                         <h5 className="text-gray-900 
                             text-xl 
                             leading-tight 
-                            font-medium">{button.buttonLabel}</h5>
+                            font-medium">{button.label}</h5>
                     </div>
                 </div>
             </td>)

@@ -15,15 +15,15 @@ const Login: FunctionComponent = () => {
     const { toast } = useToast()
 
     const [webServiceUrl, setWebServiceUrl] = useState<string | undefined>(undefined)
-    const [title, setTitle] = useState<string | undefined>(undefined)
+    const [name, setName] = useState<string | undefined>(undefined)
 
     const createDevice = async () => {
         try {
-            if (webServiceUrl && title) {
-                const baseUrl = stripTrailingSlash(webServiceUrl)
+            if (webServiceUrl && name) {
+                const baseUrl = stripTrailingSlash(webServiceUrl).toLowerCase()
 
                 const { data: key } = await axios.post<number>(`${baseUrl}/api/itaskdevices`, { 
-                    title: title
+                    name: name
                 } as CreateDeviceRequest, {
                     headers: {
                         'Content-Type': 'application/json',
@@ -32,6 +32,7 @@ const Login: FunctionComponent = () => {
                 })
 
                 setCookie('baseUrl', baseUrl)
+                setCookie('name', name)
                 setCookie('key', key)
                 
                 router.push('/')
@@ -66,7 +67,7 @@ const Login: FunctionComponent = () => {
                             required
                             minLength={1}
                             maxLength={64}
-                            onChange={(value: string | undefined) => setTitle(value)} />
+                            onChange={(value: string | undefined) => setName(value)} />
                         <div className="flex justify-center items-center">
                             <Button
                                 title="Connect"

@@ -14,11 +14,13 @@ import type { UpdateDeviceRequest } from '@/models/updateDeviceRequest'
 const Settings: FunctionComponent = () => {
     const router = useRouter()
 
+    const name = `${getCookie('name')}`
+
     const [title, setTitle] = useState<string>()
 
     const updateDevice = async () => {
-        const key = Number(getCookie('key'))
         const baseUrl = `${getCookie('baseUrl')}`
+        const key = Number(getCookie('key'))
 
         const { data: device } = await axios.get<GetDeviceResponse>(`${baseUrl}/api/itaskdevices/${key}`, {
             headers: {
@@ -27,31 +29,31 @@ const Settings: FunctionComponent = () => {
             }
         })
 
-        if(title && title != device?.entity.title) {
+        if(title && title != device?.title) {
             const date = (new Date()).toJSON()
             await axios.patch<number>(`${baseUrl}/api/itaskdevices`, {
-                id: device?.entity.id,
+                id: device?.id,
                 iTaskMenuId: {
-                    value: device?.entity.iTaskMenuId,
+                    value: device?.iTaskMenuId,
                     isChanged: false
                 },
                 departmentId: {
-                    value: device?.entity.departmentId,
+                    value: device?.departmentId,
                     isChanged: false
                 },
-                title: {
+                name: {
                     value: title,
                     isChanged: true
                 },
                 isPinCode: {
-                    value: device?.entity.isPinCode,
+                    value: device?.isPinCode,
                     isChanged: false
                 },
                 pinCode: {
-                    value: device?.entity.pinCode,
+                    value: device?.pinCode,
                     isChanged: false
                 },
-                lastConnection: {
+                lastConnectionTime: {
                     value: date,
                     isChanged: true
                 }
@@ -77,7 +79,7 @@ const Settings: FunctionComponent = () => {
                     <div className="space-y-4">
                         <Input
                             label="Device name"
-                            defaultValue={title}
+                            defaultValue={name}
                             placeholder="Device name"
                             errorMessage="Incorrect Device name"
                             required

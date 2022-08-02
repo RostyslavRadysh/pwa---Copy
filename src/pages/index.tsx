@@ -5,21 +5,38 @@ import React, { FunctionComponent,
     useEffect } from 'react'
 import { getCookie } from 'cookies-next'
 import axios from 'axios'
+import { useToast } from '@/providers/toastContextProvider'
+import FormContextProvider from '@/providers/formContextProvider'
 import Hammer from 'react-hammerjs'
 import { withAuth } from '@/utils/auth'
 import type { GetDevicesResponse } from '@/models/getDevicesResponse'
 import type { GetButtonsResponse } from '@/models/getButtonsResponse'
 import type { GetMenusResponse } from '@/models/getMenusResponse'
+import type { GetSettingsResponse } from '@/models/getSettingsResponse'
 import type { UpdateDeviceRequest } from '@/models/updateDeviceRequest'
 import DataGrid from '@/components/dataGrids'
 import Modal from '@/components/modals'
+import Locker from '@/components/lockers'
+import ScreenSaver from '@/components/screenSavers'
+import Input from '@/components/inputs'
 import Button from '@/components/buttons'
 import type { Config } from '@/models/config'
 
 const Index: FunctionComponent = () => {
     const router = useRouter()
+    const { toast } = useToast()
+
+    const name = `${getCookie('name')}`
 
     const [config, setConfig] = useState<Config>({
+        settings: {
+            applicationBackgroundColor: 'ffffffff',
+            screenSaverBackgroundColor: 'ffffffff',
+            isScreenSaverImage: false,
+            screenSaverImageUrl: undefined,
+            isScreenSaverText: false,
+            screenSaverText: undefined
+        },
         device: undefined,
         menu: undefined,
         buttons: undefined,
@@ -30,13 +47,16 @@ const Index: FunctionComponent = () => {
             isAllowUndo: false
         }
     })
-
+    const [pinCode, setPinCode] = useState<string | undefined>(undefined)
     const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false)
+    const [isLocker, setIsLocker] = useState<boolean>(false)
+    const [isScreenSaver, setIsScreenSaver] = useState<boolean>(false)
+    const [screenSaverText, setScreenSaverText] = useState<string | undefined>(undefined)
 
     useEffect(() => {
         let timer = setInterval(async () => {
-            const key = Number(getCookie('key'))
             const baseUrl = `${getCookie('baseUrl')}`
+            const key = Number(getCookie('key'))
 
             const { data: devices } = await axios.get<GetDevicesResponse>(`${baseUrl}/api/itaskdevices`, {
                 headers: {
@@ -51,6 +71,12 @@ const Index: FunctionComponent = () => {
                 }
             })
             const { data: menus } = await axios.get<GetMenusResponse>(`${baseUrl}/api/itaskmenus`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json'
+                }
+            })
+            const { data: settings } = await axios.get<GetSettingsResponse>(`${baseUrl}/api/itasksettings`, {
                 headers: {
                     'Content-Type': 'application/json',
                     Accept: 'application/json'
@@ -71,7 +97,7 @@ const Index: FunctionComponent = () => {
                     value: device?.departmentId,
                     isChanged: false
                 },
-                title: {
+                name: {
                     value: device?.title,
                     isChanged: false
                 },
@@ -83,7 +109,7 @@ const Index: FunctionComponent = () => {
                     value: device?.pinCode,
                     isChanged: false
                 },
-                lastConnection: {
+                lastConnectionTime: {
                     value: date,
                     isChanged: true
                 }
@@ -95,6 +121,14 @@ const Index: FunctionComponent = () => {
             })
 
             setConfig({
+                settings: {
+                    applicationBackgroundColor: settings.applicationBackgroundColor,
+                    screenSaverBackgroundColor: settings.screenSaverBackgroundColor,
+                    isScreenSaverImage: settings.isScreenSaverImage,
+                    screenSaverImageUrl: settings.screenSaverImageUrl,
+                    isScreenSaverText: settings.isScreenSaverText,
+                    screenSaverText: settings.screenSaverText
+                },
                 device: device,
                 menu: menu,
                 buttons: buttons?.entities,
@@ -105,8 +139,8 @@ const Index: FunctionComponent = () => {
                     isAllowUndo: false
                 }
             })
-        }, 10 * 1000)
-    
+        }, 3 * 1000)
+
         return () => {
             clearInterval(timer)
         }
@@ -115,9 +149,34 @@ const Index: FunctionComponent = () => {
     let timer: NodeJS.Timeout;
     const handleMouseMove = () => {
         if (timer) clearTimeout(timer)
-        timer = setTimeout(() => {
-            console.log('Show the screensaver')
-        }, 3000)
+        timer = setTimeout(async () => {
+            const baseUrl = `${getCookie('baseUrl')}`
+            const key = Number(getCookie('key'))
+
+            const { data: devices } = await axios.get<GetDevicesResponse>(`${baseUrl}/api/itaskdevices`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json'
+                }
+            })
+            const { data: settings } = await axios.get<GetSettingsResponse>(`${baseUrl}/api/itasksettings`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json'
+                }
+            })
+
+            const device = devices?.entities.find(entity => entity.id === key)
+            console.log('Show the pincode', device, settings)
+
+            if (settings.isScreenSaverText) {
+                setIsScreenSaver(true)
+                setScreenSaverText(settings.screenSaverText)
+            }
+            if (device?.isPinCode) {
+                setIsLocker(true)
+            }
+        }, 5 * 1000)
     }
     useEffect(() => {
         window.addEventListener("mousemove", handleMouseMove)
@@ -125,7 +184,7 @@ const Index: FunctionComponent = () => {
             window.removeEventListener("mousemove", handleMouseMove)
             if (timer) clearTimeout(timer)
         }
-    },[])
+    }, [])
 
     const createTask = async (buttonId: number) => {
         const key = Number(getCookie('key'))
@@ -145,7 +204,7 @@ const Index: FunctionComponent = () => {
 
     const onHandleCancelTaskClick = async (taskId: number) => {
         const baseUrl = `${getCookie('baseUrl')}`
-        console.log(taskId)
+
         await axios.delete<boolean>(`${baseUrl}/api/tasks/${taskId}`, {
             headers: {
                 'Content-Type': 'application/json',
@@ -154,7 +213,59 @@ const Index: FunctionComponent = () => {
         })
     }
 
+    const checkPinCode = () => {
+        if(config.device?.pinCode === pinCode) {
+            setIsLocker(false)
+            setIsScreenSaver(false)
+        } else {
+            toast('Pin Code is incorrect')
+        }
+    }
+
     return (<>
+        <ScreenSaver isOpen={isScreenSaver} 
+            onClick={(value: boolean) => setIsScreenSaver(value)}>
+            <div className="w-full
+                h-full
+                flex 
+                justify-center
+                items-center
+                space-x-4">
+                    <h5 className="text-gray-900 
+                        text-xl 
+                        leading-tight 
+                        font-medium">
+                        {screenSaverText}
+                    </h5>
+            </div>
+        </ScreenSaver>
+        <Locker isOpen={isLocker}>
+            <div className="w-full
+                    h-full
+                    flex 
+                    justify-center
+                    items-center">
+                <div className="block p-6 max-w-sm">
+                    <FormContextProvider onSubmit={checkPinCode}>
+                        <div className="space-y-4">
+                            <Input
+                                label="Pin Code"
+                                placeholder="Pin Code"
+                                errorMessage="Incorrect Pin Code"
+                                required
+                                minLength={1}
+                                maxLength={64}
+                                onChange={(value: string | undefined) => setPinCode(value)} />
+                            <div className="flex justify-center items-center">
+                                <Button
+                                    title="Validate"
+                                    type="submit" />
+                            </div>
+                        </div>
+                    </FormContextProvider>
+                </div>
+            </div>
+        </Locker>
         <Modal isOpen={isMenuOpen}
             onClick={(value: boolean) => setIsMenuOpen(value)}>
             <div className="w-full
@@ -167,7 +278,7 @@ const Index: FunctionComponent = () => {
                     text-xl 
                     leading-tight 
                     font-medium">
-                    {config.device?.title ?? "The title is loading.."}
+                    {name}
                 </h5>
                 <span className="cursor-pointer" 
                     onClick={() => router.push('/settings')}>
@@ -209,8 +320,9 @@ const Index: FunctionComponent = () => {
         </Modal>
         <Hammer direction="DIRECTION_DOWN"
             onPan={() => { if(!isMenuOpen) setIsMenuOpen(true) }}>
-            <div className="w-screen 
-                h-screen">
+            <div className={`w-screen 
+                h-screen
+                bg-[#${config.settings.applicationBackgroundColor}`}>
                 <DataGrid rows={config.menu?.rows ?? 0} 
                         columns={config.menu?.columns ?? 0} 
                         buttons={config.buttons} 

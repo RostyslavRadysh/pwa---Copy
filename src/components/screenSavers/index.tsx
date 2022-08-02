@@ -2,12 +2,12 @@ import React, { FunctionComponent } from 'react'
 import type { PropsWithChildren } from 'react'
 import { createPortal } from 'react-dom'
 
-export interface ModalProps {
+export interface ScreenSaverProps {
     isOpen: boolean
     onClick: (value: boolean) => void
 }
 
-export const Modal: FunctionComponent<PropsWithChildren<ModalProps>> = ({ children, isOpen, onClick }: PropsWithChildren<ModalProps>) => isOpen ? (
+export const ScreenSaver: FunctionComponent<PropsWithChildren<ScreenSaverProps>> = ({ isOpen, onClick, children }: PropsWithChildren<ScreenSaverProps>) => isOpen ? (
     <>
         {createPortal(<div className="fixed 
                 top-0 
@@ -17,8 +17,8 @@ export const Modal: FunctionComponent<PropsWithChildren<ModalProps>> = ({ childr
                 flex 
                 items-center 
                 justify-center">
-            <div className="bg-gray-900 
-                    opacity-50 
+            <div className="bg-white 
+                    opacity-100 
                     w-full 
                     h-full 
                     z-10" onClick={() => onClick(!isOpen)} />
@@ -26,8 +26,6 @@ export const Modal: FunctionComponent<PropsWithChildren<ModalProps>> = ({ childr
                         fixed 
                         w-1/2
                         h-2/6
-                        rounded
-                        shadow-md
                         z-20">
                     {children}
                 </div>
@@ -37,4 +35,4 @@ export const Modal: FunctionComponent<PropsWithChildren<ModalProps>> = ({ childr
     </>
 ) : null
 
-export default Modal
+export default ScreenSaver

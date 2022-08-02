@@ -1,3 +1,3 @@
 export type CreateDeviceRequest = {
-    title: string
+    name: string
 }

@@ -1,6 +1,6 @@
-import PatchEntityModel from "@/models/patchEntityModel"
+import PatchEntityModel from '@/models/patchEntityModel'
 
-export type UpdateDeviceRequest = {
+interface Device {
     id: number
     iTaskMenuId: PatchEntityModel
     departmentId: PatchEntityModel
@@ -9,3 +9,5 @@ export type UpdateDeviceRequest = {
     pinCode: PatchEntityModel
     lastConnectionTime: PatchEntityModel
 }
+
+export default Device
