@@ -12,7 +12,7 @@ export interface ScreenSaverProps {
 
 export const ScreenSaver: FunctionComponent<PropsWithChildren<ScreenSaverProps>> = ({ isOpen, color, isImage, imageUrl, onClick, children }: PropsWithChildren<ScreenSaverProps>) => {
     const hex = color.substring(2)
-
+    const url = `bg-[url('https://${imageUrl.replaceAll('https://', '')}')]`
     return isOpen ? (
         <>
             {createPortal(<div className="fixed 
@@ -28,7 +28,7 @@ export const ScreenSaver: FunctionComponent<PropsWithChildren<ScreenSaverProps>>
                         w-full 
                         h-full 
                         z-10
-                        ${isImage ?  `bg-[url(${imageUrl})]` : `bg-[#${hex}]`}`} onClick={() => onClick(!isOpen)} />
+                        ${isImage ? url : `bg-[#${hex}]`}`} onClick={() => onClick(!isOpen)} />
                     <div className="bg-white
                             fixed 
                             w-1/2
