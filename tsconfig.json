@@ -2,6 +2,9 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
+      "@/icons/*": [
+        "public/icons/*"
+      ],
       "@/components/*": [
         "src/components/*"
       ],
@@ -13,9 +16,6 @@
       ],
       "@/providers/*": [
         "src/providers/*"
-      ],
-      "@/slicers/*": [
-        "src/slicers/*"
       ],
       "@/styles/*": [
         "src/styles/*"

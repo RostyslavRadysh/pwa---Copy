@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import React, { FunctionComponent,
     useState,
     useEffect } from 'react'
-import { getCookie } from 'cookies-next'
+import { deleteCookie, getCookie } from 'cookies-next'
 import axios from 'axios'
 import { useToast } from '@/providers/toastContextProvider'
 import FormContextProvider from '@/providers/formContextProvider'
@@ -55,91 +55,106 @@ const Index: FunctionComponent = () => {
 
     useEffect(() => {
         let timer = setInterval(async () => {
-            const baseUrl = `${getCookie('baseUrl')}`
-            const key = Number(getCookie('key'))
+            try {
+                const baseUrl = `${getCookie('baseUrl')}`
+                const key = Number(getCookie('key'))
 
-            const { data: devices } = await axios.get<GetDevicesResponse>(`${baseUrl}/api/itaskdevices`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json'
-                }
-            })
-            const { data: buttons } = await axios.get<GetButtonsResponse>(`${baseUrl}/api/itaskmenubuttons`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json'
-                }
-            })
-            const { data: menus } = await axios.get<GetMenusResponse>(`${baseUrl}/api/itaskmenus`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json'
-                }
-            })
-            const { data: settings } = await axios.get<GetSettingsResponse>(`${baseUrl}/api/itasksettings`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json'
-                }
-            })
+                const { data: devices } = await axios.get<GetDevicesResponse>(`${baseUrl}/api/itaskdevices`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json'
+                    }
+                })
+                const { data: buttons } = await axios.get<GetButtonsResponse>(`${baseUrl}/api/itaskmenubuttons`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json'
+                    }
+                })
+                const { data: menus } = await axios.get<GetMenusResponse>(`${baseUrl}/api/itaskmenus`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json'
+                    }
+                })
+                const { data: settings } = await axios.get<GetSettingsResponse>(`${baseUrl}/api/itasksettings`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json'
+                    }
+                })
 
-            const device = devices?.entities.find(entity => entity.id === key)
-            const menu = menus?.entities.find(entity => entity.id === device?.iTaskMenuId)
+                const device = devices?.entities.find(entity => entity.id === key)
+                const menu = menus?.entities.find(entity => entity.id === device?.iTaskMenuId)
 
-            const date = (new Date()).toJSON()
-            await axios.patch<number>(`${baseUrl}/api/itaskdevices`, {
-                id: device?.id,
-                iTaskMenuId: {
-                    value: device?.iTaskMenuId,
-                    isChanged: false
-                },
-                departmentId: {
-                    value: device?.departmentId,
-                    isChanged: false
-                },
-                name: {
-                    value: device?.title,
-                    isChanged: false
-                },
-                isPinCode: {
-                    value: device?.isPinCode,
-                    isChanged: false
-                },
-                pinCode: {
-                    value: device?.pinCode,
-                    isChanged: false
-                },
-                lastConnectionTime: {
-                    value: date,
-                    isChanged: true
+                const date = (new Date()).toJSON()
+                await axios.patch<number>(`${baseUrl}/api/itaskdevices`, {
+                    id: device?.id,
+                    iTaskMenuId: {
+                        value: device?.iTaskMenuId,
+                        isChanged: false
+                    },
+                    departmentId: {
+                        value: device?.departmentId,
+                        isChanged: false
+                    },
+                    name: {
+                        value: device?.title,
+                        isChanged: false
+                    },
+                    isPinCode: {
+                        value: device?.isPinCode,
+                        isChanged: false
+                    },
+                    pinCode: {
+                        value: device?.pinCode,
+                        isChanged: false
+                    },
+                    lastConnectionTime: {
+                        value: date,
+                        isChanged: true
+                    }
+                } as UpdateDeviceRequest, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json'
+                    }
+                })
+            
+                setConfig({
+                    settings: {
+                        applicationBackgroundColor: settings.applicationBackgroundColor,
+                        screenSaverBackgroundColor: settings.screenSaverBackgroundColor,
+                        isScreenSaverImage: settings.isScreenSaverImage,
+                        screenSaverImageUrl: settings.screenSaverImageUrl,
+                        isScreenSaverText: settings.isScreenSaverText,
+                        screenSaverText: settings.screenSaverText
+                    },
+                    device: device,
+                    menu: menu,
+                    buttons: buttons?.entities,
+                    feedback: {
+                        id: 0,
+                        isOpen: false,
+                        time: 0,
+                        isAllowUndo: false
+                    }
+                })
+            } catch (error: unknown) {
+                if (axios.isAxiosError(error)) {
+                    if (error.response?.status === 404) {
+                        deleteCookie('baseUrl')
+                        deleteCookie('name')
+                        deleteCookie('key')
+                        
+                        router.push('/login')
+                    }
+                    toast(error.message)
+                } else {
+                    console.log('Unexpected error: ', error)
                 }
-            } as UpdateDeviceRequest, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json'
-                }
-            })
-
-            setConfig({
-                settings: {
-                    applicationBackgroundColor: settings.applicationBackgroundColor,
-                    screenSaverBackgroundColor: settings.screenSaverBackgroundColor,
-                    isScreenSaverImage: settings.isScreenSaverImage,
-                    screenSaverImageUrl: settings.screenSaverImageUrl,
-                    isScreenSaverText: settings.isScreenSaverText,
-                    screenSaverText: settings.screenSaverText
-                },
-                device: device,
-                menu: menu,
-                buttons: buttons?.entities,
-                feedback: {
-                    id: 0,
-                    isOpen: false,
-                    time: 0,
-                    isAllowUndo: false
-                }
-            })
-        }, 3 * 1000)
+            }
+        }, 15 * 1000)
 
         return () => {
             clearInterval(timer)
@@ -167,7 +182,6 @@ const Index: FunctionComponent = () => {
             })
 
             const device = devices?.entities.find(entity => entity.id === key)
-            console.log('Show the pincode', device, settings)
 
             if (settings.isScreenSaverText) {
                 setIsScreenSaver(true)
@@ -221,9 +235,13 @@ const Index: FunctionComponent = () => {
             toast('Pin Code is incorrect')
         }
     }
+    const baseUrl = `${getCookie('baseUrl')}`
 
     return (<>
         <ScreenSaver isOpen={isScreenSaver} 
+            color={config.settings.applicationBackgroundColor}
+            isImage={config.settings.isScreenSaverImage}
+            imageUrl={`${baseUrl}${config.settings.screenSaverImageUrl?.replace('~', '')}`}
             onClick={(value: boolean) => setIsScreenSaver(value)}>
             <div className="w-full
                 h-full
