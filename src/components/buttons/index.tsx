@@ -27,7 +27,9 @@ const Button: FunctionComponent<ButtonProps> = ({ title, type, color, onClick }:
         css.push('bg-purple-600 hover:bg-purple-700 focus:bg-purple-700 active:bg-purple-800')
         break
       }
-      default: { throw new Error('ButtonComponent: The color is incorrect') }
+      default: {
+        throw new Error('ButtonComponent: The color is incorrect')
+      }
     }
     return css
   }, [color])
@@ -37,7 +39,8 @@ const Button: FunctionComponent<ButtonProps> = ({ title, type, color, onClick }:
         <button className={`inline-block px-6 py-3 text-white font-medium text-sm leading-tight rounded shadow-md transition duration-150 ease-in-out
           hover:shadow-lg 
           focus:shadow-lg focus:outline-none focus:ring-0 
-          active:shadow-lg ${styles.join(' ')}`}
+          active:shadow-lg 
+          ${styles.join(' ')}`}
           type={type}
           onClick={onClick}>
             {title}

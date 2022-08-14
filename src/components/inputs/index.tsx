@@ -63,23 +63,10 @@ export const Input: FunctionComponent<InputProps> = ({ type, label, defaultValue
     return (
         <div className="flex flex-col">
             {label && (
-                <label className="inline-block 
-                mb-2 
-                text-gray-700">{label}</label>
+                <label className="inline-block mb-2 text-gray-700">{label}</label>
             )}
             <input
-                className={`border border-solid ${error ? 'border-red-500' : 'border-gray-300'} 
-                block
-                w-full
-                px-3
-                py-1.5
-                font-normal
-                text-gray-700
-                bg-white bg-clip-padding
-                rounded
-                transition
-                ease-in-out
-                m-0
+                className={`border border-solid ${error ? 'border-red-500' : 'border-gray-300'} block w-full px-3 py-1.5 font-normal  text-gray-700 bg-white bg-clip-padding rounded transition ease-in-out m-0
                 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none`}
                 type={type}
                 value={value}
@@ -90,9 +77,7 @@ export const Input: FunctionComponent<InputProps> = ({ type, label, defaultValue
                 onBlur={() => setIsDirty(true)}
                 onChange={event => setValue(event.currentTarget.value)} />
             {error && (
-                <div className="mt-1 
-                    text-xs
-                    text-red-500">{errorMessage}</div>
+                <div className="mt-1 text-xs text-red-500">{errorMessage}</div>
             )}
         </div>
     )

@@ -19,5 +19,6 @@ export type Config = {
         isOpen: boolean
         time: number
         isAllowUndo: boolean
+        text: string | undefined
     }
 }

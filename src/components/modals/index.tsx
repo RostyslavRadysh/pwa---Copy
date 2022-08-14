@@ -9,26 +9,9 @@ export interface ModalProps {
 
 export const Modal: FunctionComponent<PropsWithChildren<ModalProps>> = ({ children, isOpen, onClick }: PropsWithChildren<ModalProps>) => isOpen ? (
     <>
-        {createPortal(<div className="fixed 
-                top-0 
-                left-0 
-                w-full 
-                h-full 
-                flex 
-                items-center 
-                justify-center">
-            <div className="bg-gray-900 
-                    opacity-50 
-                    w-full 
-                    h-full 
-                    z-10" onClick={() => onClick(!isOpen)} />
-                <div className="bg-white
-                        fixed 
-                        w-1/2
-                        h-2/6
-                        rounded
-                        shadow-md
-                        z-20">
+        {createPortal(<div className="fixed top-0 left-0 w-full h-full flex items-center justify-center">
+            <div className="bg-gray-900 opacity-50 w-full h-full z-10" onClick={() => onClick(!isOpen)} />
+                <div className="bg-white fixed w-1/2 h-2/6 rounded shadow-md z-20">
                     {children}
                 </div>
             </div>,

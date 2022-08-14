@@ -4,41 +4,37 @@ import { createPortal } from 'react-dom'
 
 export interface ScreenSaverProps {
     isOpen: boolean
-    color: string
+    text: string | undefined
+    isText: boolean
+    backgroundColor: string
     isImage: boolean
     imageUrl: string
     onClick: (value: boolean) => void
 }
 
-export const ScreenSaver: FunctionComponent<PropsWithChildren<ScreenSaverProps>> = ({ isOpen, color, isImage, imageUrl, onClick, children }: PropsWithChildren<ScreenSaverProps>) => {
-    const hex = color.substring(2)
-    const url = `bg-[url('https://${imageUrl.replaceAll('https://', '')}')]`
+export const ScreenSaver: FunctionComponent<PropsWithChildren<ScreenSaverProps>> = ({ isOpen, text, isText, backgroundColor, isImage, imageUrl, onClick }: PropsWithChildren<ScreenSaverProps>) => {
+    const hostmane = (new URL(imageUrl)).hostname
     return isOpen ? (
         <>
-            {createPortal(<div className="fixed 
-                    top-0 
-                    left-0 
-                    w-full 
-                    h-full 
-                    flex 
-                    items-center 
-                    justify-center">
-                <div className={` 
-                        opacity-100 
-                        w-full 
-                        h-full 
-                        z-10
-                        ${isImage ? url : `bg-[#${hex}]`}`} onClick={() => onClick(!isOpen)} />
-                    <div className="bg-white
-                            fixed 
-                            w-1/2
-                            h-2/6
-                            z-20">
-                        {children}
-                    </div>
-                </div>,
-                document.body
-            )}
+            {
+                (createPortal(
+                    <div className="fixed top-0 left-0 w-full h-full">
+                        <div className="opacity-100 w-full h-full z-10 flex items-center justify-center"
+                        style={{ backgroundImage: `url(${hostmane})`, 
+                            backgroundRepeat: 'no-repeat', 
+                            backgroundPosition: 'center',   
+                            backgroundColor: backgroundColor }} 
+                        onClick={() => onClick(!isOpen)}>
+                            {!isImage && isText && (
+                                <h5 className="text-gray-900 text-xl leading-tight font-medium">
+                                    {text}
+                                </h5>
+                            )}
+                        </div>
+                    </div>,
+                    document.body
+                ))  
+            }
         </>
     ) : null
 }

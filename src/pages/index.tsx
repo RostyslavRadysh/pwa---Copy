@@ -9,9 +9,9 @@ import { useToast } from '@/providers/toastContextProvider'
 import FormContextProvider from '@/providers/formContextProvider'
 import Hammer from 'react-hammerjs'
 import { withAuth } from '@/utils/auth'
-import type { GetDevicesResponse } from '@/models/getDevicesResponse'
+import type { GetDeviceResponse } from '@/models/getDeviceResponse'
 import type { GetButtonsResponse } from '@/models/getButtonsResponse'
-import type { GetMenusResponse } from '@/models/getMenusResponse'
+import type { GetMenuResponse } from '@/models/getMenuResponse'
 import type { GetSettingsResponse } from '@/models/getSettingsResponse'
 import type { UpdateDeviceRequest } from '@/models/updateDeviceRequest'
 import DataGrid from '@/components/dataGrids'
@@ -21,17 +21,20 @@ import ScreenSaver from '@/components/screenSavers'
 import Input from '@/components/inputs'
 import Button from '@/components/buttons'
 import type { Config } from '@/models/config'
+import Settings from '@/icons/settings.svg'
 
 const Index: FunctionComponent = () => {
     const router = useRouter()
     const { toast } = useToast()
 
+    const baseUrl = `${getCookie('baseUrl')}`
     const name = `${getCookie('name')}`
+    const key = Number(getCookie('key'))
 
     const [config, setConfig] = useState<Config>({
         settings: {
-            applicationBackgroundColor: 'ffffffff',
-            screenSaverBackgroundColor: 'ffffffff',
+            applicationBackgroundColor: '#ffffff',
+            screenSaverBackgroundColor: '#ffffff',
             isScreenSaverImage: false,
             screenSaverImageUrl: undefined,
             isScreenSaverText: false,
@@ -44,34 +47,35 @@ const Index: FunctionComponent = () => {
             id: 0,
             isOpen: false,
             time: 0,
+            text: undefined,
             isAllowUndo: false
         }
     })
     const [pinCode, setPinCode] = useState<string | undefined>(undefined)
     const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false)
+    
     const [isLocker, setIsLocker] = useState<boolean>(false)
+    const [lockerCode, setLockerCode] = useState<string | undefined>(undefined)
+
     const [isScreenSaver, setIsScreenSaver] = useState<boolean>(false)
     const [screenSaverText, setScreenSaverText] = useState<string | undefined>(undefined)
 
     useEffect(() => {
-        let timer = setInterval(async () => {
+        let onHandleRefresh = setInterval(async () => {
             try {
-                const baseUrl = `${getCookie('baseUrl')}`
-                const key = Number(getCookie('key'))
-
-                const { data: devices } = await axios.get<GetDevicesResponse>(`${baseUrl}/api/itaskdevices`, {
+                const { data: device } = await axios.get<GetDeviceResponse>(`${baseUrl}/api/itaskdevices/${key}`, {
                     headers: {
                         'Content-Type': 'application/json',
                         Accept: 'application/json'
                     }
                 })
-                const { data: buttons } = await axios.get<GetButtonsResponse>(`${baseUrl}/api/itaskmenubuttons`, {
+                const { data: buttons } = await axios.get<GetButtonsResponse>(`${baseUrl}/api/itaskmenus/${device.iTaskMenuId}/buttons`, {
                     headers: {
                         'Content-Type': 'application/json',
                         Accept: 'application/json'
                     }
                 })
-                const { data: menus } = await axios.get<GetMenusResponse>(`${baseUrl}/api/itaskmenus`, {
+                const { data: menu } = await axios.get<GetMenuResponse>(`${baseUrl}/api/itaskmenus/${device.iTaskMenuId}`, {
                     headers: {
                         'Content-Type': 'application/json',
                         Accept: 'application/json'
@@ -83,9 +87,6 @@ const Index: FunctionComponent = () => {
                         Accept: 'application/json'
                     }
                 })
-
-                const device = devices?.entities.find(entity => entity.id === key)
-                const menu = menus?.entities.find(entity => entity.id === device?.iTaskMenuId)
 
                 const date = (new Date()).toJSON()
                 await axios.patch<number>(`${baseUrl}/api/itaskdevices`, {
@@ -137,81 +138,104 @@ const Index: FunctionComponent = () => {
                         id: 0,
                         isOpen: false,
                         time: 0,
+                        text: undefined,
                         isAllowUndo: false
                     }
                 })
             } catch (error: unknown) {
                 if (axios.isAxiosError(error)) {
-                    if (error.response?.status === 404) {
-                        deleteCookie('baseUrl')
-                        deleteCookie('name')
-                        deleteCookie('key')
-                        
-                        router.push('/login')
+                    switch(error.response?.status) {
+                        case 404: {
+                            deleteCookie('baseUrl')
+                            deleteCookie('name')
+                            deleteCookie('key')
+                            
+                            router.push('/login')
+                            break
+                        }
+                        default: {
+                            toast('Connection failed')
+                            console.log('Unexpected error: ', error)
+                            break
+                        }
                     }
-                    toast(error.message)
                 } else {
                     console.log('Unexpected error: ', error)
                 }
             }
-        }, 15 * 1000)
+        }, 5 * 1000)
 
         return () => {
-            clearInterval(timer)
+            clearInterval(onHandleRefresh)
         }
     }, [])
 
-    let timer: NodeJS.Timeout;
-    const handleMouseMove = () => {
-        if (timer) clearTimeout(timer)
-        timer = setTimeout(async () => {
-            const baseUrl = `${getCookie('baseUrl')}`
-            const key = Number(getCookie('key'))
+    let onHandleMouseMoveTimer: NodeJS.Timeout;
+    const onHandleMouseMove = () => {
+        if (onHandleMouseMoveTimer) clearTimeout(onHandleMouseMoveTimer)
+        onHandleMouseMoveTimer = setTimeout(async () => {
+            try {
+                const { data: device } = await axios.get<GetDeviceResponse>(`${baseUrl}/api/itaskdevices/${key}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json'
+                    }
+                })
+                const { data: settings } = await axios.get<GetSettingsResponse>(`${baseUrl}/api/itasksettings`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json'
+                    }
+                })
 
-            const { data: devices } = await axios.get<GetDevicesResponse>(`${baseUrl}/api/itaskdevices`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json'
+                if (settings.isScreenSaverText || settings.isScreenSaverImage) {
+                    setIsScreenSaver(true)
+                    setScreenSaverText(settings.screenSaverText)
                 }
-            })
-            const { data: settings } = await axios.get<GetSettingsResponse>(`${baseUrl}/api/itasksettings`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json'
+                if (device?.isPinCode) {
+                    setIsLocker(true)
+                    setLockerCode(device.pinCode)
                 }
-            })
-
-            const device = devices?.entities.find(entity => entity.id === key)
-
-            if (settings.isScreenSaverText) {
-                setIsScreenSaver(true)
-                setScreenSaverText(settings.screenSaverText)
+            } catch (error: unknown) {
+                if (axios.isAxiosError(error)) {
+                    switch(error.response?.status) {
+                        case 404: {
+                            deleteCookie('baseUrl')
+                            deleteCookie('name')
+                            deleteCookie('key')
+                            
+                            router.push('/login')
+                            break
+                        }
+                        default: {
+                            toast('Connection failed')
+                            console.log('Unexpected error: ', error)
+                            break
+                        }
+                    }
+                } else {
+                    console.log('Unexpected error: ', error)
+                }
             }
-            if (device?.isPinCode) {
-                setIsLocker(true)
-            }
-        }, 5 * 1000)
+        }, 10 * 1000)
     }
     useEffect(() => {
-        window.addEventListener("mousemove", handleMouseMove)
+        window.addEventListener("mousemove", onHandleMouseMove)
         return () => {
-            window.removeEventListener("mousemove", handleMouseMove)
-            if (timer) clearTimeout(timer)
+            window.removeEventListener("mousemove", onHandleMouseMove)
+            if (onHandleMouseMoveTimer) clearTimeout(onHandleMouseMoveTimer)
         }
     }, [])
 
-    const createTask = async (buttonId: number) => {
-        const key = Number(getCookie('key'))
-        const baseUrl = `${getCookie('baseUrl')}`
-
+    const onHandleCreateTask = async (buttonId: number) => {
         const { data: id } = await axios.get<number>(`${baseUrl}/api/tasks?iTaskDeviceId=${key}&iTaskMenuButtonId=${buttonId}`)
-
         const button = config.buttons?.find(button => button.id == buttonId)
 
         if(button?.feedbackTime) setConfig({ ...config, feedback: { 
             id: id,
             isOpen: true, 
             time: button.feedbackTime, 
+            text: button.feedbackText,
             isAllowUndo: button.isAllowUndo 
         } })
     }
@@ -227,44 +251,27 @@ const Index: FunctionComponent = () => {
         })
     }
 
-    const checkPinCode = () => {
-        if(config.device?.pinCode === pinCode) {
+    const onHandleCheckPinCode = () => {
+        if(lockerCode === pinCode) {
             setIsLocker(false)
             setIsScreenSaver(false)
         } else {
             toast('Pin Code is incorrect')
         }
     }
-    const baseUrl = `${getCookie('baseUrl')}`
 
     return (<>
         <ScreenSaver isOpen={isScreenSaver} 
-            color={config.settings.applicationBackgroundColor}
+            text={screenSaverText}
+            isText={config.settings.isScreenSaverText}
+            backgroundColor={config.settings.screenSaverBackgroundColor}
             isImage={config.settings.isScreenSaverImage}
             imageUrl={`${baseUrl}${config.settings.screenSaverImageUrl?.replace('~', '')}`}
-            onClick={(value: boolean) => setIsScreenSaver(value)}>
-            <div className="w-full
-                h-full
-                flex 
-                justify-center
-                items-center
-                space-x-4">
-                    <h5 className="text-gray-900 
-                        text-xl 
-                        leading-tight 
-                        font-medium">
-                        {screenSaverText}
-                    </h5>
-            </div>
-        </ScreenSaver>
-        <Locker isOpen={isLocker}>
-            <div className="w-full
-                    h-full
-                    flex 
-                    justify-center
-                    items-center">
+            onClick={(value: boolean) => setIsScreenSaver(value)} />
+        <Locker isLocked={isLocker}>
+            <div className="w-full h-full flex justify-center items-center">
                 <div className="block p-6 max-w-sm">
-                    <FormContextProvider onSubmit={checkPinCode}>
+                    <FormContextProvider onSubmit={onHandleCheckPinCode}>
                         <div className="space-y-4">
                             <Input
                                 label="Pin Code"
@@ -298,9 +305,9 @@ const Index: FunctionComponent = () => {
                     font-medium">
                     {name}
                 </h5>
-                <span className="cursor-pointer" 
+                <span className="cursor-pointer fill-black w-12" 
                     onClick={() => router.push('/settings')}>
-                        SETTINGS
+                        <Settings />
                 </span>
             </div>
         </Modal>
@@ -318,7 +325,7 @@ const Index: FunctionComponent = () => {
                             text-xl 
                             leading-tight 
                             font-medium">
-                            Your task has been created successfully
+                            {config.feedback.text}
                         </h5>
                         <div className="flex justify-center items-center">
                             <Button
@@ -331,20 +338,19 @@ const Index: FunctionComponent = () => {
                         text-xl 
                         leading-tight 
                         font-medium">
-                        Your task has been created successfully
+                        {config.feedback.text}
                     </h5>
                 )}
             </div>
         </Modal>
         <Hammer direction="DIRECTION_DOWN"
             onPan={() => { if(!isMenuOpen) setIsMenuOpen(true) }}>
-            <div className={`w-screen 
-                h-screen
-                bg-[#${config.settings.applicationBackgroundColor}`}>
+            <div className="w-screen h-screen" 
+                style={{ backgroundColor: config.settings.applicationBackgroundColor }}>
                 <DataGrid rows={config.menu?.rows ?? 0} 
                         columns={config.menu?.columns ?? 0} 
                         buttons={config.buttons} 
-                        onClick={createTask} />
+                        onClick={onHandleCreateTask} />
             </div>
         </Hammer>
     </>)

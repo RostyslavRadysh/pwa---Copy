@@ -7,6 +7,8 @@ export type Button = {
     icon: number
     label: string
     backgroundColor: string
+    iconColor: string
     feedbackTime: number
+    feedbackText: string | undefined
     isAllowUndo: boolean
 }

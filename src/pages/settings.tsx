@@ -1,8 +1,11 @@
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import React, { FunctionComponent, 
-    useState } from 'react'
-import { getCookie, deleteCookie } from 'cookies-next'
+    useState,
+    useEffect } from 'react'
+import { getCookie, 
+    setCookie,
+    deleteCookie } from 'cookies-next'
 import axios from 'axios'
 import { useToast } from '@/providers/toastContextProvider'
 import FormContextProvider from '@/providers/formContextProvider'
@@ -16,15 +19,53 @@ const Settings: FunctionComponent = () => {
     const router = useRouter()
     const { toast } = useToast()
 
+    const baseUrl = `${getCookie('baseUrl')}`
     const name = `${getCookie('name')}`
+    const key = Number(getCookie('key'))
 
     const [title, setTitle] = useState<string>()
 
-    const updateDevice = async () => {
-        try {
-            const baseUrl = `${getCookie('baseUrl')}`
-            const key = Number(getCookie('key'))
+    useEffect(() => {
+        let timer = setInterval(async () => {
+            try {
+                await axios.get<GetDeviceResponse>(`${baseUrl}/api/itaskdevices/${key}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json'
+                    }
+                })
 
+                setCookie('name', title)
+            } catch (error: unknown) {
+                if (axios.isAxiosError(error)) {
+                    switch(error.response?.status) {
+                        case 404: {
+                            deleteCookie('baseUrl')
+                            deleteCookie('name')
+                            deleteCookie('key')
+                            
+                            router.push('/login')
+                            break
+                        }
+                        default: {
+                            toast('Connection failed')
+                            console.log('Unexpected error: ', error)
+                            break
+                        }
+                    }
+                } else {
+                    console.log('Unexpected error: ', error)
+                }
+            }
+        }, 60 * 1000)
+
+        return () => {
+            clearInterval(timer)
+        }
+    }, [])
+
+    const onHandleUpdateDeviceClick = async () => {
+        try {
             const { data: device } = await axios.get<GetDeviceResponse>(`${baseUrl}/api/itaskdevices/${key}`, {
                 headers: {
                     'Content-Type': 'application/json',
@@ -71,28 +112,68 @@ const Settings: FunctionComponent = () => {
             }
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
-                if (error.response?.status === 404) {
-                    deleteCookie('baseUrl')
-                    deleteCookie('name')
-                    deleteCookie('key')
-                    
-                    router.push('/login')
+                switch(error.response?.status) {
+                    case 404: {
+                        deleteCookie('baseUrl')
+                        deleteCookie('name')
+                        deleteCookie('key')
+                        
+                        router.push('/login')
+                        break
+                    }
+                    case 409: {
+                        toast('The device name already exists')
+                        break
+                    }
+                    default: {
+                        toast('Connection failed')
+                        console.log('Unexpected error: ', error)
+                        break
+                    }
                 }
-                toast(error.message)
             } else {
                 console.log('Unexpected error: ', error)
             }
         }
     }
 
-    const onHandleCancelClick = () => {
-        router.push('/')
+    const onHandleCancelClick = async () => {
+        try {
+            await axios.get<GetDeviceResponse>(`${baseUrl}/api/itaskdevices/${key}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json'
+                }
+            })
+
+            router.push('/')
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                switch(error.response?.status) {
+                    case 404: {
+                        deleteCookie('baseUrl')
+                        deleteCookie('name')
+                        deleteCookie('key')
+                        
+                        router.push('/login')
+                        break
+                    }
+                    default: {
+                        toast('Connection failed')
+                        console.log('Unexpected error: ', error)
+                        break
+                    }
+                }
+            } else {
+                console.log('Unexpected error: ', error)
+            }
+        }
     }
 
     return (
         <div className="bg-gray-200 w-screen h-screen flex justify-center items-center">
             <div className="block p-6 rounded-lg shadow-md bg-white max-w-sm">
-                <FormContextProvider onSubmit={updateDevice}>
+                <FormContextProvider onSubmit={onHandleUpdateDeviceClick}>
                     <div className="space-y-4">
                         <Input
                             label="Device name"
@@ -105,7 +186,7 @@ const Settings: FunctionComponent = () => {
                             onChange={(value: string | undefined) => setTitle(value)} />
                         <div className="flex justify-between items-center">
                             <Button
-                                title="Connect"
+                                title="Update"
                                 type="submit" />
                             <Button
                                 title="Cancel"

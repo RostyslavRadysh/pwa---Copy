@@ -1,4 +1,4 @@
-export function stripTrailingSlash(str: string): string {
+export function stripTrailingSlash(text: string): string {
     const expression  = new RegExp(/\/+$/g)
-    return str.replace(expression, '')
+    return text.replace(expression, '')
 }

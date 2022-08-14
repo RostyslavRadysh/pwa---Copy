@@ -39,7 +39,17 @@ const Login: FunctionComponent = () => {
             }
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
-                toast(error.message)
+                switch(error.response?.status) {
+                    case 409: {
+                        toast('The device name already exists')
+                        break
+                    }
+                    default: {
+                        toast('Connection failed')
+                        console.log('Unexpected error: ', error)
+                        break
+                    }
+                }
             } else {
                 console.log('Unexpected error: ', error)
             }
