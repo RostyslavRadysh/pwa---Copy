@@ -17,20 +17,21 @@ import type { UpdateDeviceRequest } from '@/models/updateDeviceRequest'
 import DataGrid from '@/components/dataGrids'
 import Modal from '@/components/modals'
 import Locker from '@/components/lockers'
-import ScreenSaver from '@/components/screenSavers'
 import Input from '@/components/inputs'
 import Button from '@/components/buttons'
 import type { Config } from '@/models/config'
 import Settings from '@/icons/settings.svg'
 
-const Index: FunctionComponent = () => {
+interface IndexProps {
+    baseUrl: string
+    name: string
+    id: string
+}
+
+const Index: FunctionComponent<IndexProps> = ({ baseUrl, name, id }) => {
     const router = useRouter()
     const { toast } = useToast()
-
-    const baseUrl = `${getCookie('baseUrl')}`
-    const name = `${getCookie('name')}`
-    const key = Number(getCookie('key'))
-
+    
     const [config, setConfig] = useState<Config>({
         settings: {
             applicationBackgroundColor: '#ffffff',
@@ -57,30 +58,38 @@ const Index: FunctionComponent = () => {
     const [isLocker, setIsLocker] = useState<boolean>(false)
     const [lockerCode, setLockerCode] = useState<string | undefined>(undefined)
 
-    const [isScreenSaver, setIsScreenSaver] = useState<boolean>(false)
+    const [isScreenSaverOpen, setIsScreenSaverOpen] = useState<boolean>(false)
     const [screenSaverText, setScreenSaverText] = useState<string | undefined>(undefined)
 
     useEffect(() => {
         let onHandleRefresh = setInterval(async () => {
             try {
-                const { data: device } = await axios.get<GetDeviceResponse>(`${baseUrl}/api/itaskdevices/${key}`, {
+                const { data: device } = await axios.get<GetDeviceResponse>(`${baseUrl}/api/itaskdevices/${id}`, {
                     headers: {
                         'Content-Type': 'application/json',
                         Accept: 'application/json'
                     }
                 })
-                const { data: buttons } = await axios.get<GetButtonsResponse>(`${baseUrl}/api/itaskmenus/${device.iTaskMenuId}/buttons`, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json'
-                    }
-                })
-                const { data: menu } = await axios.get<GetMenuResponse>(`${baseUrl}/api/itaskmenus/${device.iTaskMenuId}`, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json'
-                    }
-                })
+                let buttons
+                if(device.iTaskMenuId) {
+                    const { data: buttons1 } = await axios.get<GetButtonsResponse>(`${baseUrl}/api/itaskmenus/${device.iTaskMenuId}/buttons`, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Accept: 'application/json'
+                        }
+                    })
+                    buttons = buttons1
+                }
+                let menu
+                if(device.iTaskMenuId) {
+                    const { data: menu1 } = await axios.get<GetMenuResponse>(`${baseUrl}/api/itaskmenus/${device.iTaskMenuId}`, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Accept: 'application/json'
+                        }
+                    })
+                    menu = menu1
+                }
                 const { data: settings } = await axios.get<GetSettingsResponse>(`${baseUrl}/api/itasksettings`, {
                     headers: {
                         'Content-Type': 'application/json',
@@ -148,7 +157,7 @@ const Index: FunctionComponent = () => {
                         case 404: {
                             deleteCookie('baseUrl')
                             deleteCookie('name')
-                            deleteCookie('key')
+                            deleteCookie('id')
                             
                             router.push('/login')
                             break
@@ -175,7 +184,7 @@ const Index: FunctionComponent = () => {
         if (onHandleMouseMoveTimer) clearTimeout(onHandleMouseMoveTimer)
         onHandleMouseMoveTimer = setTimeout(async () => {
             try {
-                const { data: device } = await axios.get<GetDeviceResponse>(`${baseUrl}/api/itaskdevices/${key}`, {
+                const { data: device } = await axios.get<GetDeviceResponse>(`${baseUrl}/api/itaskdevices/${id}`, {
                     headers: {
                         'Content-Type': 'application/json',
                         Accept: 'application/json'
@@ -189,7 +198,7 @@ const Index: FunctionComponent = () => {
                 })
 
                 if (settings.isScreenSaverText || settings.isScreenSaverImage) {
-                    setIsScreenSaver(true)
+                    setIsScreenSaverOpen(true)
                     setScreenSaverText(settings.screenSaverText)
                 }
                 if (device?.isPinCode) {
@@ -202,7 +211,7 @@ const Index: FunctionComponent = () => {
                         case 404: {
                             deleteCookie('baseUrl')
                             deleteCookie('name')
-                            deleteCookie('key')
+                            deleteCookie('id')
                             
                             router.push('/login')
                             break
@@ -228,11 +237,11 @@ const Index: FunctionComponent = () => {
     }, [])
 
     const onHandleCreateTask = async (buttonId: number) => {
-        const { data: id } = await axios.get<number>(`${baseUrl}/api/tasks?iTaskDeviceId=${key}&iTaskMenuButtonId=${buttonId}`)
+        const { data: id1 } = await axios.get<number>(`${baseUrl}/api/tasks?iTaskDeviceId=${id}&iTaskMenuButtonId=${buttonId}`)
         const button = config.buttons?.find(button => button.id == buttonId)
 
         if(button?.feedbackTime) setConfig({ ...config, feedback: { 
-            id: id,
+            id: id1,
             isOpen: true, 
             time: button.feedbackTime, 
             text: button.feedbackText,
@@ -240,7 +249,7 @@ const Index: FunctionComponent = () => {
         } })
     }
 
-    const onHandleCancelTaskClick = async (taskId: number) => {
+    const onHandleUndoCreateTaskClick = async (taskId: number) => {
         const baseUrl = `${getCookie('baseUrl')}`
 
         await axios.delete<boolean>(`${baseUrl}/api/tasks/${taskId}`, {
@@ -254,20 +263,17 @@ const Index: FunctionComponent = () => {
     const onHandleCheckPinCode = () => {
         if(lockerCode === pinCode) {
             setIsLocker(false)
-            setIsScreenSaver(false)
+            setIsScreenSaverOpen(false)
         } else {
             toast('Pin Code is incorrect')
         }
     }
 
+    const onHandleSettingsClick = () => {
+        router.push('/settings')
+    }
+
     return (<>
-        <ScreenSaver isOpen={isScreenSaver} 
-            text={screenSaverText}
-            isText={config.settings.isScreenSaverText}
-            backgroundColor={config.settings.screenSaverBackgroundColor}
-            isImage={config.settings.isScreenSaverImage}
-            imageUrl={`${baseUrl}${config.settings.screenSaverImageUrl?.replace('~', '')}`}
-            onClick={(value: boolean) => setIsScreenSaver(value)} />
         <Locker isLocked={isLocker}>
             <div className="w-full h-full flex justify-center items-center">
                 <div className="block p-6 max-w-sm">
@@ -291,28 +297,41 @@ const Index: FunctionComponent = () => {
                 </div>
             </div>
         </Locker>
+        <Modal isOpen={isScreenSaverOpen}
+            backgroundColor={config.settings.screenSaverBackgroundColor}
+            imageUrl={`http://localhost:1900/${config.settings.screenSaverImageUrl?.replace('~', '')}`}
+            onClick={(value) => setIsScreenSaverOpen(value)}>
+            {config.settings.isScreenSaverText && !config.settings.isScreenSaverImage && (
+                <div className="fixed z-20"
+                    onClick={() => setIsScreenSaverOpen(false)}>
+                    <div className="w-full h-full flex justify-center items-center">
+                        <h5 className="text-gray-900 text-xl leading-tight font-medium select-none cursor-default">
+                            {screenSaverText}
+                        </h5>
+                    </div>
+                </div>
+            )}
+        </Modal>
         <Modal isOpen={isMenuOpen}
-            onClick={(value: boolean) => setIsMenuOpen(value)}>
-            <div className="w-full
-                h-full
-                flex 
-                justify-center
-                items-center
-                space-x-4">
-                <h5 className="text-gray-900 
-                    text-xl 
-                    leading-tight 
-                    font-medium">
-                    {name}
-                </h5>
-                <span className="cursor-pointer fill-black w-12" 
-                    onClick={() => router.push('/settings')}>
-                        <Settings />
-                </span>
+            onClick={(value) => setIsMenuOpen(value)}
+            backgroundColor={undefined}
+            imageUrl={undefined}>
+            <div className="bg-white fixed w-1/2 h-2/6 rounded shadow-md z-20">
+                <div className="w-full h-full flex justify-center items-center space-x-2">
+                    <h5 className="text-gray-900 text-xl leading-tight font-medium">
+                        {name}
+                    </h5>
+                    <span className="cursor-pointer fill-black w-12 shrink-0 select-none" 
+                        onClick={onHandleSettingsClick}>
+                            <Settings />
+                    </span>
+                </div>
             </div>
         </Modal>
         <Modal isOpen={config.feedback.isOpen}
-            onClick={(value: boolean) => setConfig({ ...config, feedback: { ...config.feedback, isOpen: value } })}>
+            onClick={(value: boolean) => setConfig({ ...config, feedback: { ...config.feedback, isOpen: value } })}
+            backgroundColor={undefined}
+            imageUrl={undefined}>
             <div className="w-full
                 h-full
                 flex 
@@ -330,7 +349,7 @@ const Index: FunctionComponent = () => {
                         <div className="flex justify-center items-center">
                             <Button
                                 title="Undo"
-                                onClick={() => onHandleCancelTaskClick(config.feedback.id)} />
+                                onClick={() => onHandleUndoCreateTaskClick(config.feedback.id)} />
                         </div>
                     </div>
                 ) : (

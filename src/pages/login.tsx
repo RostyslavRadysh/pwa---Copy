@@ -14,15 +14,13 @@ const Login: FunctionComponent = () => {
     const router = useRouter()
     const { toast } = useToast()
 
-    const [webServiceUrl, setWebServiceUrl] = useState<string | undefined>(undefined)
+    const [baseUrl, setBaseUrl] = useState<string | undefined>(undefined)
     const [name, setName] = useState<string | undefined>(undefined)
 
     const createDevice = async () => {
         try {
-            if (webServiceUrl && name) {
-                const baseUrl = stripTrailingSlash(webServiceUrl).toLowerCase()
-
-                const { data: key } = await axios.post<number>(`${baseUrl}/api/itaskdevices`, { 
+            if (baseUrl && name) {
+                const { data: id } = await axios.post<number>(`${baseUrl}/api/itaskdevices`, { 
                     name: name
                 } as CreateDeviceRequest, {
                     headers: {
@@ -33,7 +31,7 @@ const Login: FunctionComponent = () => {
 
                 setCookie('baseUrl', baseUrl)
                 setCookie('name', name)
-                setCookie('key', key)
+                setCookie('id', id)
                 
                 router.push('/')
             }
@@ -69,7 +67,7 @@ const Login: FunctionComponent = () => {
                             minLength={1}
                             maxLength={64}
                             isUrl
-                            onChange={(value: string | undefined) => setWebServiceUrl(value)} />
+                            onChange={(value: string | undefined) => setBaseUrl(value ? stripTrailingSlash(value).toLowerCase() : undefined)} />
                         <Input
                             label="Device name"
                             placeholder="Device name"

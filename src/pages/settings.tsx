@@ -3,8 +3,7 @@ import { useRouter } from 'next/router'
 import React, { FunctionComponent, 
     useState,
     useEffect } from 'react'
-import { getCookie, 
-    setCookie,
+import { setCookie,
     deleteCookie } from 'cookies-next'
 import axios from 'axios'
 import { useToast } from '@/providers/toastContextProvider'
@@ -15,34 +14,34 @@ import { withAuth } from '@/utils/auth'
 import type { GetDeviceResponse } from '@/models/getDeviceResponse'
 import type { UpdateDeviceRequest } from '@/models/updateDeviceRequest'
 
-const Settings: FunctionComponent = () => {
+interface SettingsProps {
+    baseUrl: string
+    name: string
+    id: string
+}
+
+const Settings: FunctionComponent<SettingsProps> = ({ baseUrl, name, id }) => {
     const router = useRouter()
     const { toast } = useToast()
-
-    const baseUrl = `${getCookie('baseUrl')}`
-    const name = `${getCookie('name')}`
-    const key = Number(getCookie('key'))
-
+console.log(baseUrl, name, id)
     const [title, setTitle] = useState<string>()
 
     useEffect(() => {
         let timer = setInterval(async () => {
             try {
-                await axios.get<GetDeviceResponse>(`${baseUrl}/api/itaskdevices/${key}`, {
+                await axios.get<GetDeviceResponse>(`${baseUrl}/api/itaskdevices/${id}`, {
                     headers: {
                         'Content-Type': 'application/json',
                         Accept: 'application/json'
                     }
                 })
-
-                setCookie('name', title)
             } catch (error: unknown) {
                 if (axios.isAxiosError(error)) {
                     switch(error.response?.status) {
                         case 404: {
                             deleteCookie('baseUrl')
                             deleteCookie('name')
-                            deleteCookie('key')
+                            deleteCookie('id')
                             
                             router.push('/login')
                             break
@@ -66,7 +65,7 @@ const Settings: FunctionComponent = () => {
 
     const onHandleUpdateDeviceClick = async () => {
         try {
-            const { data: device } = await axios.get<GetDeviceResponse>(`${baseUrl}/api/itaskdevices/${key}`, {
+            const { data: device } = await axios.get<GetDeviceResponse>(`${baseUrl}/api/itaskdevices/${id}`, {
                 headers: {
                     'Content-Type': 'application/json',
                     Accept: 'application/json'
@@ -108,6 +107,8 @@ const Settings: FunctionComponent = () => {
                     }
                 })
         
+                setCookie('name', title)
+                console.log(title)
                 router.push('/')
             }
         } catch (error: unknown) {
@@ -116,7 +117,7 @@ const Settings: FunctionComponent = () => {
                     case 404: {
                         deleteCookie('baseUrl')
                         deleteCookie('name')
-                        deleteCookie('key')
+                        deleteCookie('id')
                         
                         router.push('/login')
                         break
@@ -139,7 +140,7 @@ const Settings: FunctionComponent = () => {
 
     const onHandleCancelClick = async () => {
         try {
-            await axios.get<GetDeviceResponse>(`${baseUrl}/api/itaskdevices/${key}`, {
+            await axios.get<GetDeviceResponse>(`${baseUrl}/api/itaskdevices/${id}`, {
                 headers: {
                     'Content-Type': 'application/json',
                     Accept: 'application/json'
@@ -153,7 +154,7 @@ const Settings: FunctionComponent = () => {
                     case 404: {
                         deleteCookie('baseUrl')
                         deleteCookie('name')
-                        deleteCookie('key')
+                        deleteCookie('id')
                         
                         router.push('/login')
                         break
