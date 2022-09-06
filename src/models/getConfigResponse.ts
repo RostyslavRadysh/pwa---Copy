@@ -1,5 +1,6 @@
-export type GetSettingsResponse = {
+export type GetConfigResponse = {
     applicationBackgroundColor: string
+    screenSaverTime: number
     screenSaverBackgroundColor: string
     isScreenSaverImage: boolean
     screenSaverImageUrl: string | undefined

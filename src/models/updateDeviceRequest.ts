@@ -7,5 +7,6 @@ export type UpdateDeviceRequest = {
     name: PatchEntityModel
     isPinCode: PatchEntityModel
     pinCode: PatchEntityModel
+    isSettings: PatchEntityModel
     lastConnectionTime: PatchEntityModel
 }

@@ -1,37 +1,39 @@
 import { useRouter } from 'next/router'
 import React, { FunctionComponent, 
     useState } from 'react'
-import { setCookie } from 'cookies-next'
+import { getCookie,
+    setCookie } from 'cookies-next'
 import axios from 'axios'
 import { useToast } from '@/providers/toastContextProvider'
 import FormContextProvider from '@/providers/formContextProvider'
 import Input from '@/components/inputs'
 import Button from '@/components/buttons'
-import { stripTrailingSlash } from '@/utils/helpers'
 import type { CreateDeviceRequest } from '@/models/createDeviceRequest'
 
-const Login: FunctionComponent = () => {
+const LoginDetails: FunctionComponent = () => {
     const router = useRouter()
     const { toast } = useToast()
 
-    const [baseUrl, setBaseUrl] = useState<string | undefined>(undefined)
+    const baseUrl = `${getCookie('baseUrl')}`
+    const token = `${getCookie('token')}`
+
     const [name, setName] = useState<string | undefined>(undefined)
 
     const createDevice = async () => {
         try {
-            if (baseUrl && name) {
-                const { data: id } = await axios.post<number>(`${baseUrl}/api/itaskdevices`, { 
+            if (name) {
+                const { data: deviceId } = await axios.post<number>(`${baseUrl}/api/itaskdevices`, { 
                     name: name
                 } as CreateDeviceRequest, {
                     headers: {
                         'Content-Type': 'application/json',
-                        Accept: 'application/json'
+                        Accept: 'application/json',
+                        'Authorization': `Bearer ${token}`
                     }
                 })
 
-                setCookie('baseUrl', baseUrl)
-                setCookie('name', name)
-                setCookie('id', id)
+                setCookie('deviceName', name)
+                setCookie('deviceId', deviceId)
                 
                 router.push('/')
             }
@@ -60,15 +62,6 @@ const Login: FunctionComponent = () => {
                 <FormContextProvider onSubmit={createDevice}>
                     <div className="space-y-4">
                         <Input
-                            label="Web Service"
-                            placeholder="Web Service"
-                            errorMessage="Incorrect Web Service"
-                            required
-                            minLength={1}
-                            maxLength={64}
-                            isUrl
-                            onChange={(value: string | undefined) => setBaseUrl(value ? stripTrailingSlash(value).toLowerCase() : undefined)} />
-                        <Input
                             label="Device name"
                             placeholder="Device name"
                             errorMessage="Incorrect Device name"
@@ -88,4 +81,4 @@ const Login: FunctionComponent = () => {
     )
 }
 
-export default Login
+export default LoginDetails

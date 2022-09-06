@@ -17,24 +17,14 @@ export interface InputProps {
     required?: boolean
     minLength?: number
     maxLength?: number
-    isUrl?: boolean
     onChange?: (value: string | undefined) => void
 }
 
-export const Input: FunctionComponent<InputProps> = ({ type, label, defaultValue, placeholder, errorMessage, autoComplete, required, minLength, maxLength, isUrl, onChange }: InputProps) => {
+export const Input: FunctionComponent<InputProps> = ({ type, label, defaultValue, placeholder, errorMessage, autoComplete, required, minLength, maxLength, onChange }: InputProps) => {
     const { isFormDirty } = useForm()
     const [error, setError] = useState<boolean>(false)
     const [isDirty, setIsDirty] = useState<boolean>(isFormDirty)
     const [value, setValue] = useState<string>(defaultValue ?? '')
-
-    const isValidUrl = (text: string) => {
-        try {
-          const url = new URL(text)
-          return url.protocol === 'http:' || url.protocol === 'https:'
-        } catch (error: unknown) {
-          return false
-        }
-    }
 
     useEffect(() => {
         if (isFormDirty && !isDirty) setIsDirty(true)
@@ -43,7 +33,6 @@ export const Input: FunctionComponent<InputProps> = ({ type, label, defaultValue
     useEffect(() => {
         if (isDirty) {
             switch (true) {
-                case isUrl && !isValidUrl(value):
                 case required && value.length === 0:
                 case minLength && value.length < minLength:
                 case maxLength && value.length > maxLength: {
@@ -58,7 +47,7 @@ export const Input: FunctionComponent<InputProps> = ({ type, label, defaultValue
                 }
             }
         }
-    }, [value, isDirty, required, minLength, maxLength, isUrl, onChange])
+    }, [value, isDirty, required, minLength, maxLength, onChange])
 
     return (
         <div className="flex flex-col">
