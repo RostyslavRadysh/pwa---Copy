@@ -47,6 +47,8 @@ const Index: FunctionComponent = () => {
 
     const [pinCode, setPinCode] = useState<string | undefined>(undefined)
 
+    console.log(isScreenSaverOpen)
+
     useEffect(() => {
         let onHandleRefresh = setInterval(async () => {
             try {
@@ -323,21 +325,7 @@ const Index: FunctionComponent = () => {
                 </div>
             </div>
         </Locker>
-        <Modal isOpen={isScreenSaverOpen} 
-            backgroundColor={config?.screenSaverBackgroundColor} 
-            imageUrl={`http://localhost:1900/${config?.screenSaverImageUrl?.replace('~', '')}`} 
-            onClick={(value) => setIsScreenSaverOpen(value)}> 
-            {config?.isScreenSaverText && !config?.isScreenSaverImage && ( 
-                <div className="fixed z-20" 
-                    onClick={() => setIsScreenSaverOpen(false)}> 
-                    <div className="w-full h-full flex justify-center items-center"> 
-                        <h5 className="text-gray-900 text-xl leading-tight font-medium select-none cursor-default"> 
-                            {config?.screenSaverText} 
-                        </h5> 
-                    </div> 
-                </div> 
-            )} 
-        </Modal>
+
         <Modal isOpen={isMenuOpen}
             onClick={(value) => setIsMenuOpen(value)}
             backgroundColor={undefined}
@@ -359,22 +347,20 @@ const Index: FunctionComponent = () => {
             backgroundColor={undefined}
             imageUrl={undefined}>
                 {feedback?.isAllowUndo ? (
-                    <div className="space-y-4">
-                        <h5 className="text-gray-900 
-                            text-xl 
-                            leading-tight 
-                            font-medium">
-                            {feedback?.text}
-                        </h5>
-                        <div className="flex justify-center items-center">
-                            <Button
-                                title="Undo"
-                                onClick={() => onHandleUndoCreateTaskClick(feedback?.taskId)} />
+                    <div className="bg-white fixed w-1/2 h-2/6 rounded shadow-md z-20">
+                        <div className="w-full h-full flex justify-center items-center space-y-4">
+                            <h5 className="text-gray-900 text-xl leading-tight font-medium">
+                                {feedback?.text}
+                            </h5>
+                            <div className="flex justify-center items-center">
+                                <Button title="Undo"
+                                    onClick={() => onHandleUndoCreateTaskClick(feedback?.taskId)} />
+                            </div>
                         </div>
                     </div>
                 ) : (
                     <div className="bg-white fixed w-1/2 h-2/6 rounded shadow-md z-20">
-                        <div className="w-full h-full flex justify-center items-center space-x-2">
+                        <div className="w-full h-full flex justify-center items-center">
                             <h5 className="text-gray-900 text-xl leading-tight font-medium">
                                 {feedback?.text}
                             </h5>
