@@ -7,25 +7,26 @@ import { useToast } from '@/providers/toastContextProvider'
 import FormContextProvider from '@/providers/formContextProvider'
 import Input from '@/components/inputs'
 import Button from '@/components/buttons'
-import type { PostAuthenticationRequest } from '@/models/postAuthenticationRequest'
+import type { PostAuthenticationUserRequest } from '@/models/postAuthenticationUserRequest'
 import type { PostAuthenticationResponse } from '@/models/postAuthenticationResponse'
 
 const LoginUser: FunctionComponent = () => {
     const router = useRouter()
     const { toast } = useToast()
 
-    const { baseUrl } = router.query
+    const { basePath } = router.query
 
     const [userName, setUserName] = useState<string | undefined>(undefined)
     const [password, setPassword] = useState<string | undefined>(undefined)
+    const [baseUrl, setBaseUrl] = useState<string | undefined>(undefined)
 
-    const createDevice = async () => {
+    const onHandleUserLoginClick = async () => {
         try {
             if (userName && password) {
                 const { data: jwt, status } = await axios.post<PostAuthenticationResponse>(`${baseUrl}/api/authentication/gettokenbystafflogin`, { 
                     userName: userName,
                     password: password
-                } as PostAuthenticationRequest, {
+                } as PostAuthenticationUserRequest, {
                     headers: {
                         'Content-Type': 'application/json',
                         Accept: 'application/json'
@@ -37,11 +38,11 @@ const LoginUser: FunctionComponent = () => {
                 }
                 else {
                     setCookie('baseUrl', baseUrl)
+                    setCookie('basePath', basePath)
                     setCookie('token', jwt.token)
-                    setCookie('userName', userName)
-                    setCookie('password', password)
 
-                    router.push('/loginDetails')
+                    if(basePath) router.push(`${basePath}/loginDetails.html`)
+                    else router.push('/loginDetails')
                 }
             }
         } catch (error: unknown) {
@@ -62,8 +63,17 @@ const LoginUser: FunctionComponent = () => {
     return (
         <div className="bg-gray-200 w-screen h-screen flex justify-center items-center">
             <div className="block p-6 rounded-lg shadow-md bg-white max-w-sm">
-                <FormContextProvider onSubmit={createDevice}>
+                <FormContextProvider onSubmit={onHandleUserLoginClick}>
                     <div className="space-y-4">
+                        <Input
+                            label="Web Service"
+                            placeholder="Web Service"
+                            errorMessage="Incorrect Web Service"
+                            required
+                            minLength={1}
+                            maxLength={64}
+                            isUrl
+                            onChange={(value: string | undefined) => setBaseUrl(value)} />
                         <Input
                             label="User name"
                             placeholder="User name"

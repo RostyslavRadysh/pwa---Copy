@@ -30,15 +30,16 @@ const Index: FunctionComponent = () => {
     const { toast } = useToast()
 
     const baseUrl = `${getCookie('baseUrl')}`
+    const basePath = `${getCookie('basePath')}`
     const token = `${getCookie('token')}`
     const deviceName = `${getCookie('deviceName')}`
     const deviceId = `${getCookie('deviceId')}`
 
     const [buttons, setButtons] = useState<ButtonModel[] | undefined>(undefined)
-    const [config, setConfig] = useState<ConfigModel | undefined>()
     const [device, setDevice] = useState<DeviceModel | undefined>(undefined)
-    const [feedback, setFeedback] = useState<FeedbackModel | undefined>(undefined)
     const [menu, setMenu] = useState<MenuModel | undefined>(undefined)
+    const [config, setConfig] = useState<ConfigModel | undefined>()
+    const [feedback, setFeedback] = useState<FeedbackModel | undefined>(undefined)
 
     const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false)
     const [isScreenSaverOpen, setIsScreenSaverOpen] = useState<boolean>(false)
@@ -46,8 +47,6 @@ const Index: FunctionComponent = () => {
     const [isFeedbackOpen, setIsFeedbackOpen] = useState<boolean>(false)
 
     const [pinCode, setPinCode] = useState<string | undefined>(undefined)
-
-    console.log(isScreenSaverOpen)
 
     useEffect(() => {
         let onHandleRefresh = setInterval(async () => {
@@ -170,13 +169,14 @@ const Index: FunctionComponent = () => {
                     switch(error.response?.status) {
                         case 404: {
                             deleteCookie('baseUrl')
+                            deleteCookie('basePath')
                             deleteCookie('token')
                             deleteCookie('deviceName')
                             deleteCookie('deviceId')
-                            deleteCookie('userName')
-                            deleteCookie('password')
+                            
+                            if(basePath) router.push(`${basePath}/loginUser.html?basePath=${basePath}`)
+                            else router.push('/loginUser?basePath=')
 
-                            router.push(`/loginUser/baseUrl=${baseUrl}`)
                             break
                         }
                         default: {
@@ -187,6 +187,15 @@ const Index: FunctionComponent = () => {
                     }
                 } else {
                     console.log('Unexpected error: ', error)
+
+                    deleteCookie('baseUrl')
+                    deleteCookie('basePath')
+                    deleteCookie('token')
+                    deleteCookie('deviceName')
+                    deleteCookie('deviceId')
+                    
+                    if(basePath) router.push(`${basePath}/loginUser.html?basePath=${basePath}`)
+                    else router.push('/loginUser?basePath=')
                 }
             }
         }, 5 * 1000)
@@ -201,21 +210,7 @@ const Index: FunctionComponent = () => {
         if (onHandleMouseMoveTimer) clearTimeout(onHandleMouseMoveTimer)
         onHandleMouseMoveTimer = setTimeout(async () => {
             try {
-                const { data: device } = await axios.get<GetDeviceResponse>(`${baseUrl}/api/itaskdevices/${deviceId}`, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    }
-                })
-                const { data: config } = await axios.get<GetConfigResponse>(`${baseUrl}/api/itasksettings`, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    }
-                })
-
+                console.log('a', config)
                 if (config?.screenSaverTime) {
                     setIsScreenSaverOpen(true)
                 }
@@ -227,13 +222,14 @@ const Index: FunctionComponent = () => {
                     switch(error.response?.status) {
                         case 404: {
                             deleteCookie('baseUrl')
+                            deleteCookie('basePath')
                             deleteCookie('token')
                             deleteCookie('deviceName')
                             deleteCookie('deviceId')
-                            deleteCookie('userName')
-                            deleteCookie('password')
                             
-                            router.push(`/loginUser/baseUrl=${baseUrl}`)
+                            if(basePath) router.push(`${basePath}/loginUser.html?basePath=${basePath}`)
+                            else router.push('/loginUser?basePath=')
+
                             break
                         }
                         default: {
@@ -244,6 +240,15 @@ const Index: FunctionComponent = () => {
                     }
                 } else {
                     console.log('Unexpected error: ', error)
+
+                    deleteCookie('baseUrl')
+                    deleteCookie('basePath')
+                    deleteCookie('token')
+                    deleteCookie('deviceName')
+                    deleteCookie('deviceId')
+                    
+                    if(basePath) router.push(`${basePath}/loginUser.html?basePath=${basePath}`)
+                    else router.push('/loginUser?basePath=')
                 }
             }
         }, (config?.screenSaverTime ?? 0) * 1000)
@@ -257,7 +262,7 @@ const Index: FunctionComponent = () => {
             window.removeEventListener("mousemove", onHandleMouseMove)
             if (onHandleMouseMoveTimer) clearTimeout(onHandleMouseMoveTimer)
         }
-    }, [config])
+    }, [device, config])
 
     const onHandleCreateTask = async (buttonId: number) => {
         const { data: taskId } = await axios.get<number>(`${baseUrl}/api/tasks?iTaskDeviceId=${deviceId}&iTaskMenuButtonId=${buttonId}`, {
@@ -298,9 +303,10 @@ const Index: FunctionComponent = () => {
     }
 
     const onHandleSettingsClick = () => {
-        router.push('/settings')
+        if(basePath) router.push(`${basePath}/settings.html`)
+        else router.push('/settings')
     }
-
+    console.log(isScreenSaverOpen)
     return (<>
         <Locker isLocked={isLockerOpen}>
             <div className="w-full h-full flex justify-center items-center">
@@ -308,6 +314,7 @@ const Index: FunctionComponent = () => {
                     <FormContextProvider onSubmit={onHandleValidatePinCode}>
                         <div className="space-y-4">
                             <Input
+                                type='password'
                                 label="Pin code"
                                 placeholder="Pin code"
                                 errorMessage="Incorrect Pin code"
@@ -325,7 +332,21 @@ const Index: FunctionComponent = () => {
                 </div>
             </div>
         </Locker>
-
+        <Modal isOpen={isScreenSaverOpen}  
+            backgroundColor={config?.screenSaverBackgroundColor}  
+            imageUrl={config?.isScreenSaverImage ? `${baseUrl.replace('/api', '')}/${config?.screenSaverImageUrl?.replace('~', '')}` : `${basePath}/assets/logo-diractive.png`}  
+            onClick={(value) => setIsScreenSaverOpen(value)}>
+            {config?.isScreenSaverText && !config?.isScreenSaverImage && (  
+                <div className="fixed z-20"  
+                    onClick={() => setIsScreenSaverOpen(false)}>  
+                    <div className="w-full h-full flex justify-center items-center">  
+                        <h5 className="text-gray-900 text-xl leading-tight font-medium select-none cursor-default">  
+                            {config?.screenSaverText}  
+                        </h5>  
+                    </div>  
+                </div>  
+            )}  
+        </Modal>
         <Modal isOpen={isMenuOpen}
             onClick={(value) => setIsMenuOpen(value)}
             backgroundColor={undefined}

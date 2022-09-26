@@ -18,6 +18,7 @@ const Settings: FunctionComponent = () => {
     const { toast } = useToast()
 
     const baseUrl = `${getCookie('baseUrl')}`
+    const basePath = `${getCookie('basePath')}`
     const token = `${getCookie('token')}`
     const deviceName = `${getCookie('deviceName')}`
     const deviceId = `${getCookie('deviceId')}`
@@ -27,7 +28,46 @@ const Settings: FunctionComponent = () => {
     useEffect(() => {
         let timer = setInterval(async () => {
             try {
-                await axios.get<GetDeviceResponse>(`${baseUrl}/api/itaskdevices/${deviceId}`, {
+                const { data: deviceResponse } = await axios.get<GetDeviceResponse>(`${baseUrl}/api/itaskdevices/${deviceId}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+
+                const date = (new Date()).toJSON()
+                await axios.patch<number>(`${baseUrl}/api/itaskdevices`, {
+                    id: deviceResponse?.id,
+                    iTaskMenuId: {
+                        value: deviceResponse?.iTaskMenuId,
+                        isChanged: false
+                    },
+                    departmentId: {
+                        value: deviceResponse?.departmentId,
+                        isChanged: false
+                    },
+                    name: {
+                        value: deviceResponse?.name,
+                        isChanged: false
+                    },
+                    isPinCode: {
+                        value: deviceResponse?.isPinCode,
+                        isChanged: false
+                    },
+                    pinCode: {
+                        value: deviceResponse?.pinCode,
+                        isChanged: false
+                    },
+                    isSettings: {
+                        value: deviceResponse?.isSettings,
+                        isChanged: false
+                    },
+                    lastConnectionTime: {
+                        value: date,
+                        isChanged: true
+                    }
+                } as UpdateDeviceRequest, {
                     headers: {
                         'Content-Type': 'application/json',
                         Accept: 'application/json',
@@ -39,13 +79,14 @@ const Settings: FunctionComponent = () => {
                     switch(error.response?.status) {
                         case 404: {
                             deleteCookie('baseUrl')
+                            deleteCookie('basePath')
                             deleteCookie('token')
                             deleteCookie('deviceName')
                             deleteCookie('deviceId')
-                            deleteCookie('userName')
-                            deleteCookie('password')
                             
-                            router.push(`/loginUser/baseUrl=${baseUrl}`)
+                            if(basePath) router.push(`${basePath}/loginUser.html?basePath=${basePath}`)
+                            else router.push('/loginUser?basePath=')
+
                             break
                         }
                         default: {
@@ -56,6 +97,15 @@ const Settings: FunctionComponent = () => {
                     }
                 } else {
                     console.log('Unexpected error: ', error)
+
+                    deleteCookie('baseUrl')
+                    deleteCookie('basePath')
+                    deleteCookie('token')
+                    deleteCookie('deviceName')
+                    deleteCookie('deviceId')
+                    
+                    if(basePath) router.push(`${basePath}/loginUser.html?basePath=${basePath}`)
+                    else router.push('/loginUser?basePath=')
                 }
             }
         }, 60 * 1000)
@@ -117,20 +167,22 @@ const Settings: FunctionComponent = () => {
         
                 setCookie('deviceName', name)
 
-                router.push('/')
+                if(basePath) router.push(`${basePath}/index.html`)
+                else router.push('/')
             }
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
                 switch(error.response?.status) {
                     case 404: {
                         deleteCookie('baseUrl')
+                        deleteCookie('basePath')
                         deleteCookie('token')
                         deleteCookie('deviceName')
                         deleteCookie('deviceId')
-                        deleteCookie('userName')
-                        deleteCookie('password')
 
-                        router.push(`/loginUser/baseUrl=${baseUrl}`)
+                        if(basePath) router.push(`${basePath}/loginUser.html?basePath=${basePath}`)
+                        else router.push('/loginUser?basePath=')
+
                         break
                     }
                     case 409: {
@@ -145,12 +197,22 @@ const Settings: FunctionComponent = () => {
                 }
             } else {
                 console.log('Unexpected error: ', error)
+
+                deleteCookie('baseUrl')
+                deleteCookie('basePath')
+                deleteCookie('token')
+                deleteCookie('deviceName')
+                deleteCookie('deviceId')
+
+                if(basePath) router.push(`${basePath}/loginUser.html?basePath=${basePath}`)
+                else router.push('/loginUser?basePath=')
             }
         }
     }
 
     const onHandleCancelClick = async () => {
-        router.push('/')
+        if(basePath) router.push(`${basePath}/index.html`)
+        else router.push('/')
     }
 
     return (

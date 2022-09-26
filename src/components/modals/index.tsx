@@ -12,11 +12,12 @@ export interface ModalProps {
 export const Modal: FunctionComponent<PropsWithChildren<ModalProps>> = ({ children, isOpen, backgroundColor, imageUrl, onClick }: PropsWithChildren<ModalProps>) => isOpen ? (
     <>
         {createPortal(<div className="fixed top-0 left-0 w-full h-full flex items-center justify-center">
-            <div className={`${backgroundColor ? 'opacity-100' : 'bg-gray-900 opacity-50'} w-full h-full z-10`}
+            <div className={`${backgroundColor ? '' : 'bg-gray-300'} w-full h-full z-10`}
                 style={{ backgroundImage: `url(${imageUrl})`, 
                     backgroundRepeat: 'no-repeat', 
                     backgroundPosition: 'center',   
-                    backgroundColor: backgroundColor }}
+                    backgroundColor: backgroundColor,
+                    backgroundSize: 'contain' }}
                 onClick={() => onClick(!isOpen)} />
                     {children}
             </div>,
