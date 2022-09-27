@@ -306,7 +306,15 @@ const Index: FunctionComponent = () => {
         if(basePath) router.push(`${basePath}/settings.html`)
         else router.push('/settings')
     }
-    console.log(isScreenSaverOpen)
+    
+    var screenSaverImageUri = ''
+    if (config?.isScreenSaverImage) {
+        screenSaverImageUri = `${baseUrl.replace('/api', '/itransport')}/${config?.screenSaverImageUrl?.replace('~', '')}`
+    }
+    else if (!config?.isScreenSaverText) {
+        screenSaverImageUri = `${basePath}/assets/logo-diractive.png`
+    }
+
     return (<>
         <Locker isLocked={isLockerOpen}>
             <div className="w-full h-full flex justify-center items-center">
@@ -334,7 +342,7 @@ const Index: FunctionComponent = () => {
         </Locker>
         <Modal isOpen={isScreenSaverOpen}  
             backgroundColor={config?.screenSaverBackgroundColor}  
-            imageUrl={config?.isScreenSaverImage ? `${baseUrl.replace('/api', '')}/${config?.screenSaverImageUrl?.replace('~', '')}` : `${basePath}/assets/logo-diractive.png`}  
+            imageUrl={screenSaverImageUri}  
             onClick={(value) => setIsScreenSaverOpen(value)}>
             {config?.isScreenSaverText && !config?.isScreenSaverImage && (  
                 <div className="fixed z-20"  
