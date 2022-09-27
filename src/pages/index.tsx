@@ -2,8 +2,6 @@ import { useRouter } from 'next/router'
 import React, { FunctionComponent,
     useState,
     useEffect } from 'react'
-import { getCookie,
-    deleteCookie } from 'cookies-next'
 import axios from 'axios'
 import { useToast } from '@/providers/toastContextProvider'
 import FormContextProvider from '@/providers/formContextProvider'
@@ -29,11 +27,7 @@ const Index: FunctionComponent = () => {
     const router = useRouter()
     const { toast } = useToast()
 
-    const baseUrl = `${getCookie('baseUrl')}`
-    const basePath = `${getCookie('basePath')}`
-    const token = `${getCookie('token')}`
-    const deviceName = `${getCookie('deviceName')}`
-    const deviceId = `${getCookie('deviceId')}`
+    const { baseUrl, basePath, token, deviceName, deviceId } = router.query
 
     const [buttons, setButtons] = useState<ButtonModel[] | undefined>(undefined)
     const [device, setDevice] = useState<DeviceModel | undefined>(undefined)
@@ -168,14 +162,8 @@ const Index: FunctionComponent = () => {
                 if (axios.isAxiosError(error)) {
                     switch(error.response?.status) {
                         case 404: {
-                            deleteCookie('baseUrl')
-                            deleteCookie('basePath')
-                            deleteCookie('token')
-                            deleteCookie('deviceName')
-                            deleteCookie('deviceId')
-                            
                             if(basePath) router.push(`${basePath}/loginUser.html?basePath=${basePath}`)
-                            else router.push('/loginUser?basePath=')
+                            else router.push(`/loginUser?basePath=${basePath}`)
 
                             break
                         }
@@ -188,14 +176,8 @@ const Index: FunctionComponent = () => {
                 } else {
                     console.log('Unexpected error: ', error)
 
-                    deleteCookie('baseUrl')
-                    deleteCookie('basePath')
-                    deleteCookie('token')
-                    deleteCookie('deviceName')
-                    deleteCookie('deviceId')
-                    
                     if(basePath) router.push(`${basePath}/loginUser.html?basePath=${basePath}`)
-                    else router.push('/loginUser?basePath=')
+                    else router.push(`/loginUser?basePath=${basePath}`)
                 }
             }
         }, 5 * 1000)
@@ -210,7 +192,6 @@ const Index: FunctionComponent = () => {
         if (onHandleMouseMoveTimer) clearTimeout(onHandleMouseMoveTimer)
         onHandleMouseMoveTimer = setTimeout(async () => {
             try {
-                console.log('a', config)
                 if (config?.screenSaverTime) {
                     setIsScreenSaverOpen(true)
                 }
@@ -221,14 +202,8 @@ const Index: FunctionComponent = () => {
                 if (axios.isAxiosError(error)) {
                     switch(error.response?.status) {
                         case 404: {
-                            deleteCookie('baseUrl')
-                            deleteCookie('basePath')
-                            deleteCookie('token')
-                            deleteCookie('deviceName')
-                            deleteCookie('deviceId')
-                            
                             if(basePath) router.push(`${basePath}/loginUser.html?basePath=${basePath}`)
-                            else router.push('/loginUser?basePath=')
+                            else router.push(`/loginUser?basePath=${basePath}`)
 
                             break
                         }
@@ -241,14 +216,8 @@ const Index: FunctionComponent = () => {
                 } else {
                     console.log('Unexpected error: ', error)
 
-                    deleteCookie('baseUrl')
-                    deleteCookie('basePath')
-                    deleteCookie('token')
-                    deleteCookie('deviceName')
-                    deleteCookie('deviceId')
-                    
                     if(basePath) router.push(`${basePath}/loginUser.html?basePath=${basePath}`)
-                    else router.push('/loginUser?basePath=')
+                    else router.push(`/loginUser?basePath=${basePath}`)
                 }
             }
         }, (config?.screenSaverTime ?? 0) * 1000)
@@ -303,13 +272,13 @@ const Index: FunctionComponent = () => {
     }
 
     const onHandleSettingsClick = () => {
-        if(basePath) router.push(`${basePath}/settings.html`)
-        else router.push('/settings')
+        if(basePath) router.push(`${basePath}/settings.html?baseUrl=${baseUrl}&basePath=${basePath}&token=${token}&deviceName=${deviceName}&deviceId=${deviceId}`)
+        else router.push(`/settings?baseUrl=${baseUrl}&basePath=${basePath}&token=${token}&deviceName=${deviceName}&deviceId=${deviceId}`)
     }
     
     var screenSaverImageUri = ''
     if (config?.isScreenSaverImage) {
-        screenSaverImageUri = `${baseUrl.replace('/api', '/itransport')}/${config?.screenSaverImageUrl?.replace('~', '')}`
+        screenSaverImageUri = `${(baseUrl as string ?? '').replace('/api', '/itransport')}/${config?.screenSaverImageUrl?.replace('~', '')}`
     }
     else if (!config?.isScreenSaverText) {
         screenSaverImageUri = `${basePath}/assets/logo-diractive.png`

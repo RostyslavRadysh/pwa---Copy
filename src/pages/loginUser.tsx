@@ -1,7 +1,6 @@
 import { useRouter } from 'next/router'
 import React, { FunctionComponent, 
     useState } from 'react'
-import { setCookie } from 'cookies-next'
 import axios from 'axios'
 import { useToast } from '@/providers/toastContextProvider'
 import FormContextProvider from '@/providers/formContextProvider'
@@ -37,12 +36,8 @@ const LoginUser: FunctionComponent = () => {
                     toast('User name or password is incorrect')
                 }
                 else {
-                    setCookie('baseUrl', baseUrl)
-                    setCookie('basePath', basePath)
-                    setCookie('token', jwt.token)
-
-                    if(basePath) router.push(`${basePath}/loginDetails.html`)
-                    else router.push('/loginDetails')
+                    if(basePath) router.push(`${basePath}/loginDetails.html?baseUrl=${baseUrl}&basePath=${basePath}&token=${jwt.token}`)
+                    else router.push(`/loginDetails?baseUrl=${baseUrl}&basePath=${basePath}&token=${jwt.token}`)
                 }
             }
         } catch (error: unknown) {

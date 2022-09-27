@@ -2,9 +2,6 @@ import { useRouter } from 'next/router'
 import React, { FunctionComponent, 
     useState,
     useEffect } from 'react'
-import { setCookie,
-    getCookie,
-    deleteCookie } from 'cookies-next'
 import axios from 'axios'
 import { useToast } from '@/providers/toastContextProvider'
 import FormContextProvider from '@/providers/formContextProvider'
@@ -17,11 +14,7 @@ const Settings: FunctionComponent = () => {
     const router = useRouter()
     const { toast } = useToast()
 
-    const baseUrl = `${getCookie('baseUrl')}`
-    const basePath = `${getCookie('basePath')}`
-    const token = `${getCookie('token')}`
-    const deviceName = `${getCookie('deviceName')}`
-    const deviceId = `${getCookie('deviceId')}`
+    const { baseUrl, basePath, token, deviceName, deviceId } = router.query
 
     const [name, setName] = useState<string | undefined>(undefined)
 
@@ -78,14 +71,8 @@ const Settings: FunctionComponent = () => {
                 if (axios.isAxiosError(error)) {
                     switch(error.response?.status) {
                         case 404: {
-                            deleteCookie('baseUrl')
-                            deleteCookie('basePath')
-                            deleteCookie('token')
-                            deleteCookie('deviceName')
-                            deleteCookie('deviceId')
-                            
                             if(basePath) router.push(`${basePath}/loginUser.html?basePath=${basePath}`)
-                            else router.push('/loginUser?basePath=')
+                            else router.push(`/loginUser?basePath=${basePath}`)
 
                             break
                         }
@@ -97,15 +84,9 @@ const Settings: FunctionComponent = () => {
                     }
                 } else {
                     console.log('Unexpected error: ', error)
-
-                    deleteCookie('baseUrl')
-                    deleteCookie('basePath')
-                    deleteCookie('token')
-                    deleteCookie('deviceName')
-                    deleteCookie('deviceId')
                     
                     if(basePath) router.push(`${basePath}/loginUser.html?basePath=${basePath}`)
-                    else router.push('/loginUser?basePath=')
+                    else router.push(`/loginUser?basePath=${basePath}`)
                 }
             }
         }, 60 * 1000)
@@ -165,23 +146,15 @@ const Settings: FunctionComponent = () => {
                     }
                 })
         
-                setCookie('deviceName', name)
-
-                if(basePath) router.push(`${basePath}/index.html`)
-                else router.push('/')
+                if(basePath) router.push(`${basePath}/index.html?baseUrl=${baseUrl}&basePath=${basePath}&token=${token}&deviceName=${name}&deviceId=${deviceId}`)
+                else router.push(`/?baseUrl=${baseUrl}&basePath=${basePath}&token=${token}&deviceName=${name}&deviceId=${deviceId}`)
             }
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
                 switch(error.response?.status) {
                     case 404: {
-                        deleteCookie('baseUrl')
-                        deleteCookie('basePath')
-                        deleteCookie('token')
-                        deleteCookie('deviceName')
-                        deleteCookie('deviceId')
-
                         if(basePath) router.push(`${basePath}/loginUser.html?basePath=${basePath}`)
-                        else router.push('/loginUser?basePath=')
+                        else router.push(`/loginUser?basePath=${basePath}`)
 
                         break
                     }
@@ -198,21 +171,15 @@ const Settings: FunctionComponent = () => {
             } else {
                 console.log('Unexpected error: ', error)
 
-                deleteCookie('baseUrl')
-                deleteCookie('basePath')
-                deleteCookie('token')
-                deleteCookie('deviceName')
-                deleteCookie('deviceId')
-
                 if(basePath) router.push(`${basePath}/loginUser.html?basePath=${basePath}`)
-                else router.push('/loginUser?basePath=')
+                else router.push(`/loginUser?basePath=${basePath}`)
             }
         }
     }
 
     const onHandleCancelClick = async () => {
-        if(basePath) router.push(`${basePath}/index.html`)
-        else router.push('/')
+        if(basePath) router.push(`${basePath}/index.html?baseUrl=${baseUrl}&basePath=${basePath}&token=${token}&deviceName=${name}&deviceId=${deviceId}`)
+        else router.push(`/?baseUrl=${baseUrl}&basePath=${basePath}&token=${token}&deviceName=${name}&deviceId=${deviceId}`)
     }
 
     return (
@@ -222,7 +189,7 @@ const Settings: FunctionComponent = () => {
                     <div className="space-y-4">
                         <Input
                             label="Device name"
-                            defaultValue={deviceName}
+                            defaultValue={deviceName as string}
                             placeholder="Device name"
                             errorMessage="Incorrect Device name"
                             required

@@ -1,9 +1,6 @@
 import { useRouter } from 'next/router'
 import React, { FunctionComponent, 
     useState } from 'react'
-import { getCookie,
-    setCookie,
-    deleteCookie } from 'cookies-next'
 import axios from 'axios'
 import { useToast } from '@/providers/toastContextProvider'
 import FormContextProvider from '@/providers/formContextProvider'
@@ -17,9 +14,7 @@ const LoginDetails: FunctionComponent = () => {
     const router = useRouter()
     const { toast } = useToast()
 
-    const baseUrl = `${getCookie('baseUrl')}`
-    const basePath = `${getCookie('basePath')}`
-    const token = `${getCookie('token')}`
+    const { baseUrl, basePath, token } = router.query
 
     const [name, setName] = useState<string | undefined>(undefined)
 
@@ -55,12 +50,8 @@ const LoginDetails: FunctionComponent = () => {
                     }
                 })
 
-                setCookie('token', jwt.token)
-                setCookie('deviceName', name)
-                setCookie('deviceId', deviceId)
-                
-                if(basePath) router.push(`${basePath}/index.html`)
-                else router.push('/')
+                if(basePath) router.push(`${basePath}/index.html?baseUrl=${baseUrl}&basePath=${basePath}&token=${jwt.token}&deviceName=${name}&deviceId=${deviceId}`)
+                else router.push(`/?baseUrl=${baseUrl}&basePath=${basePath}&token=${jwt.token}&deviceName=${name}&deviceId=${deviceId}`)
             }
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
@@ -77,11 +68,7 @@ const LoginDetails: FunctionComponent = () => {
                 }
             } else {                
                 console.log('Unexpected error: ', error)
-
-                deleteCookie('baseUrl')
-                deleteCookie('basePath')
-                deleteCookie('token')
-
+                
                 if(basePath) router.push(`${basePath}/loginUser.html?basePath=${basePath}`)
                 else router.push('/loginUser?basePath=')
             }
