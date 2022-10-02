@@ -6,6 +6,7 @@ import { useToast } from '@/providers/toastContextProvider'
 import FormContextProvider from '@/providers/formContextProvider'
 import Input from '@/components/inputs'
 import Button from '@/components/buttons'
+import ScreenLoading from '@/components/screenLoading'
 import type { CreateDeviceRequest } from '@/models/createDeviceRequest'
 import type { PostAuthenticationDeviceRequest } from '@/models/postAuthenticationDeviceRequest'
 import type { PostAuthenticationResponse } from '@/models/postAuthenticationResponse'
@@ -14,24 +15,30 @@ const LoginDetails: FunctionComponent = () => {
     const router = useRouter()
     const { toast } = useToast()
 
-    const { baseUrl, basePath, token } = router.query
-
-    const [name, setName] = useState<string | undefined>(undefined)
+    const [deviceName, setDeviceName] = useState<string | undefined>(undefined)
+    const [isLoading, setIsLoading] = useState<boolean>(false)
 
     const onHandleCreateDeviceClick = async () => {
         try {
-            if (name) {            
+            if (deviceName) {            
+                setIsLoading(true)
+
+                const basePath = localStorage.getItem('basePath')
+                const format = localStorage.getItem('format')
+                const baseUrl = localStorage.getItem('baseUrl')
+                const token = localStorage.getItem('token')
+
                 var chars = '0123456789abcdefghijklmnopqrstuvwxyz!@#$%^&*()ABCDEFGHIJKLMNOPQRSTUVWXYZ'
                 var passwordLength = 20
-                var password = ''
+                var devicePassword = ''
                 for (var i = 0; i <= passwordLength; i++) {
                     var randomNumber = Math.floor(Math.random() * chars.length)
-                    password += chars.substring(randomNumber, randomNumber + 1)
+                    devicePassword += chars.substring(randomNumber, randomNumber + 1)
                 }
 
                 const { data: deviceId } = await axios.post<number>(`${baseUrl}/api/itaskdevices`, { 
-                    name: name,
-                    password: password
+                    name: deviceName,
+                    password: devicePassword
                 } as CreateDeviceRequest, {
                     headers: {
                         'Content-Type': 'application/json',
@@ -40,9 +47,11 @@ const LoginDetails: FunctionComponent = () => {
                     }
                 })
 
+                localStorage.setItem('deviceId', deviceId as unknown as string)
+
                 const { data: jwt } = await axios.post<PostAuthenticationResponse>(`${baseUrl}/api/authentication/gettokenbyitaskdevice`, { 
                     id: deviceId,
-                    password: password
+                    password: devicePassword
                 } as PostAuthenticationDeviceRequest, {
                     headers: {
                         'Content-Type': 'application/json',
@@ -50,8 +59,11 @@ const LoginDetails: FunctionComponent = () => {
                     }
                 })
 
-                if(basePath) router.push(`${basePath}/index.html?baseUrl=${baseUrl}&basePath=${basePath}&token=${jwt.token}&deviceName=${name}&deviceId=${deviceId}`)
-                else router.push(`/?baseUrl=${baseUrl}&basePath=${basePath}&token=${jwt.token}&deviceName=${name}&deviceId=${deviceId}`)
+                localStorage.setItem('token', jwt.token)
+
+                setIsLoading(false)
+
+                router.push(`${basePath}/${format ? 'index' : ''}${format}`)
             }
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
@@ -68,35 +80,35 @@ const LoginDetails: FunctionComponent = () => {
                 }
             } else {                
                 console.log('Unexpected error: ', error)
-                
-                if(basePath) router.push(`${basePath}/loginUser.html?basePath=${basePath}`)
-                else router.push('/loginUser?basePath=')
             }
         }
     }
 
     return (
-        <div className="bg-gray-200 w-screen h-screen flex justify-center items-center">
-            <div className="block p-6 rounded-lg shadow-md bg-white max-w-sm">
-                <FormContextProvider onSubmit={onHandleCreateDeviceClick}>
-                    <div className="space-y-4">
-                        <Input
-                            label="Device name"
-                            placeholder="Device name"
-                            errorMessage="Incorrect Device name"
-                            required
-                            minLength={1}
-                            maxLength={64}
-                            onChange={(value: string | undefined) => setName(value)} />
-                        <div className="flex justify-center items-center">
-                            <Button
-                                title="Connect"
-                                type="submit" />
+        <>
+            <ScreenLoading isLoading={isLoading} />
+            <div className="bg-gray-200 w-screen h-screen flex justify-center items-center">
+                <div className="block p-6 rounded-lg shadow-md bg-white max-w-sm">
+                    <FormContextProvider onSubmit={onHandleCreateDeviceClick}>
+                        <div className="space-y-4">
+                            <Input
+                                label="Device name"
+                                placeholder="Device name"
+                                errorMessage="Incorrect Device name"
+                                required
+                                minLength={1}
+                                maxLength={64}
+                                onChange={(value: string | undefined) => setDeviceName(value)} />
+                            <div className="flex justify-center items-center">
+                                <Button
+                                    title="Create"
+                                    type="submit" />
+                            </div>
                         </div>
-                    </div>
-                </FormContextProvider>
+                    </FormContextProvider>
+                </div>
             </div>
-        </div>
+        </>
     )
 }
 

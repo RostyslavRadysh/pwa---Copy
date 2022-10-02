@@ -65,9 +65,8 @@ export const Input: FunctionComponent<InputProps> = ({ type, label, defaultValue
             {label && (
                 <label className="inline-block mb-2 text-gray-700">{label}</label>
             )}
-            <input
-                className={`border border-solid ${error ? 'border-red-500' : 'border-gray-300'} block w-full px-3 py-1.5 font-normal  text-gray-700 bg-white bg-clip-padding rounded transition ease-in-out m-0
-                focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none`}
+            <input className={`border border-solid ${error ? 'border-red-500' : 'border-gray-300'} w-full px-3 py-1.5 text-gray-700 bg-white rounded
+                focus:text-gray-700 focus:bg-white focus:border-blue-700 focus:outline-none`}
                 type={type}
                 value={value}
                 placeholder={placeholder}

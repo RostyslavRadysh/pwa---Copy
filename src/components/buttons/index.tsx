@@ -5,7 +5,7 @@ import React, { FunctionComponent,
 const buttons = ['button', 'submit'] as const
 export type ButtonType = typeof buttons[number]
 
-const colors = ['blue', 'purple'] as const
+const colors = ['blue', 'purple', 'white'] as const
 export type ColorType = typeof colors[number]
 
 export interface ButtonProps {
@@ -27,6 +27,10 @@ const Button: FunctionComponent<ButtonProps> = ({ title, type, color, onClick }:
         css.push('bg-purple-600 hover:bg-purple-700 focus:bg-purple-700 active:bg-purple-800')
         break
       }
+      case 'white': {
+        css.push('bg-gray-200 hover:bg-gray-400 focus:bg-gray-300 active:bg-gray-400')
+        break
+      }
       default: {
         throw new Error('ButtonComponent: The color is incorrect')
       }
@@ -36,9 +40,9 @@ const Button: FunctionComponent<ButtonProps> = ({ title, type, color, onClick }:
 
   return (
     <div>
-        <button className={`inline-block px-6 py-3 text-white font-medium text-sm leading-tight rounded shadow-md transition duration-150 ease-in-out
+        <button className={`px-6 py-3 text-white font-medium text-sm leading-tight rounded shadow-md
           hover:shadow-lg 
-          focus:shadow-lg focus:outline-none focus:ring-0 
+          focus:shadow-lg focus:outline-none
           active:shadow-lg 
           ${styles.join(' ')}`}
           type={type}

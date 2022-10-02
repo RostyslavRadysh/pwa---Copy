@@ -7,6 +7,7 @@ import { useToast } from '@/providers/toastContextProvider'
 import FormContextProvider from '@/providers/formContextProvider'
 import Input from '@/components/inputs'
 import Button from '@/components/buttons'
+import ScreenLoading from '@/components/screenLoading'
 import type { GetDeviceResponse } from '@/models/getDeviceResponse'
 import type { UpdateDeviceRequest } from '@/models/updateDeviceRequest'
 
@@ -14,12 +15,17 @@ const Settings: FunctionComponent = () => {
     const router = useRouter()
     const { toast } = useToast()
 
-    const { baseUrl, basePath, token, deviceName, deviceId } = router.query
-
-    const [name, setName] = useState<string | undefined>(undefined)
+    const [deviceName, setDeviceName] = useState<string | undefined>(undefined)
+    const [isLoading, setIsLoading] = useState<boolean>(false)
 
     useEffect(() => {
-        let timer = setInterval(async () => {
+        if(!router.isReady) return
+
+        const baseUrl = localStorage.getItem('baseUrl')
+        const token = localStorage.getItem('token')
+        const deviceId = localStorage.getItem('deviceId')
+
+        let onHandleRefresh = setInterval(async () => {
             try {
                 const { data: deviceResponse } = await axios.get<GetDeviceResponse>(`${baseUrl}/api/itaskdevices/${deviceId}`, {
                     headers: {
@@ -71,8 +77,10 @@ const Settings: FunctionComponent = () => {
                 if (axios.isAxiosError(error)) {
                     switch(error.response?.status) {
                         case 404: {
-                            if(basePath) router.push(`${basePath}/loginUser.html?basePath=${basePath}`)
-                            else router.push(`/loginUser?basePath=${basePath}`)
+                            const basePath = localStorage.getItem('basePath')
+                            const format = localStorage.getItem('format')
+
+                            router.push(`${basePath}/loginUser${format}?basePath=${basePath}&format=${format}`)
 
                             break
                         }
@@ -84,20 +92,25 @@ const Settings: FunctionComponent = () => {
                     }
                 } else {
                     console.log('Unexpected error: ', error)
-                    
-                    if(basePath) router.push(`${basePath}/loginUser.html?basePath=${basePath}`)
-                    else router.push(`/loginUser?basePath=${basePath}`)
                 }
             }
         }, 60 * 1000)
 
         return () => {
-            clearInterval(timer)
+            clearInterval(onHandleRefresh)
         }
-    }, [])
+    }, [router.isReady])
 
     const onHandleUpdateDeviceClick = async () => {
         try {
+            setIsLoading(true)
+
+            const basePath = localStorage.getItem('basePath')
+            const format = localStorage.getItem('format')
+            const baseUrl = localStorage.getItem('baseUrl')
+            const token = localStorage.getItem('token')
+            const deviceId = localStorage.getItem('deviceId')
+
             const { data: device } = await axios.get<GetDeviceResponse>(`${baseUrl}/api/itaskdevices/${deviceId}`, {
                 headers: {
                     'Content-Type': 'application/json',
@@ -106,7 +119,7 @@ const Settings: FunctionComponent = () => {
                 }
             })
 
-            if(name && name != device?.name) {
+            if(deviceName != device?.name) {
                 const date = (new Date()).toJSON()
                 await axios.patch<number>(`${baseUrl}/api/itaskdevices`, {
                     id: device?.id,
@@ -119,7 +132,7 @@ const Settings: FunctionComponent = () => {
                         isChanged: false
                     },
                     name: {
-                        value: name,
+                        value: deviceName,
                         isChanged: true
                     },
                     isPinCode: {
@@ -145,16 +158,27 @@ const Settings: FunctionComponent = () => {
                         'Authorization': `Bearer ${token}`
                     }
                 })
+
+                setIsLoading(false)
         
-                if(basePath) router.push(`${basePath}/index.html?baseUrl=${baseUrl}&basePath=${basePath}&token=${token}&deviceName=${name}&deviceId=${deviceId}`)
-                else router.push(`/?baseUrl=${baseUrl}&basePath=${basePath}&token=${token}&deviceName=${name}&deviceId=${deviceId}`)
+                router.push(`${basePath}/index${format}`)
             }
+
+            setIsLoading(false)
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
                 switch(error.response?.status) {
                     case 404: {
-                        if(basePath) router.push(`${basePath}/loginUser.html?basePath=${basePath}`)
-                        else router.push(`/loginUser?basePath=${basePath}`)
+                        const basePath = localStorage.getItem('basePath')
+                        const format = localStorage.getItem('format')
+
+                        localStorage.removeItem('basePath')
+                        localStorage.removeItem('format')
+                        localStorage.removeItem('baseUrl')
+                        localStorage.removeItem('token')
+                        localStorage.removeItem('deviceId')
+
+                        router.push(`${basePath}/loginUser${format}?basePath=${basePath}&format=${format}`)
 
                         break
                     }
@@ -170,45 +194,47 @@ const Settings: FunctionComponent = () => {
                 }
             } else {
                 console.log('Unexpected error: ', error)
-
-                if(basePath) router.push(`${basePath}/loginUser.html?basePath=${basePath}`)
-                else router.push(`/loginUser?basePath=${basePath}`)
             }
         }
     }
 
     const onHandleCancelClick = async () => {
-        if(basePath) router.push(`${basePath}/index.html?baseUrl=${baseUrl}&basePath=${basePath}&token=${token}&deviceName=${name}&deviceId=${deviceId}`)
-        else router.push(`/?baseUrl=${baseUrl}&basePath=${basePath}&token=${token}&deviceName=${name}&deviceId=${deviceId}`)
+        const basePath = localStorage.getItem('basePath')
+        const format = localStorage.getItem('format')
+
+        router.push(`${basePath}/index${format}`)
     }
 
     return (
-        <div className="bg-gray-200 w-screen h-screen flex justify-center items-center">
-            <div className="block p-6 rounded-lg shadow-md bg-white max-w-sm">
-                <FormContextProvider onSubmit={onHandleUpdateDeviceClick}>
-                    <div className="space-y-4">
-                        <Input
-                            label="Device name"
-                            defaultValue={deviceName as string}
-                            placeholder="Device name"
-                            errorMessage="Incorrect Device name"
-                            required
-                            minLength={1}
-                            maxLength={64}
-                            onChange={(value: string | undefined) => setName(value)} />
-                        <div className="flex justify-between items-center">
-                            <Button
-                                title="Update"
-                                type="submit" />
-                            <Button
-                                title="Cancel"
-                                color="purple"
-                                onClick={onHandleCancelClick} />
+        <>
+            <ScreenLoading isLoading={isLoading} />
+            <div className="bg-gray-200 w-screen h-screen flex justify-center items-center">
+                <div className="block p-6 rounded-lg shadow-md bg-white max-w-sm">
+                    <FormContextProvider onSubmit={onHandleUpdateDeviceClick}>
+                        <div className="space-y-4">
+                            <Input
+                                label="Device name"
+                                defaultValue={deviceName as string}
+                                placeholder="Device name"
+                                errorMessage="Incorrect Device name"
+                                required
+                                minLength={1}
+                                maxLength={64}
+                                onChange={(value: string | undefined) => setDeviceName(value)} />
+                            <div className="flex justify-between items-center">
+                                <Button
+                                    title="Update"
+                                    type="submit" />
+                                <Button
+                                    title="Cancel"
+                                    color="purple"
+                                    onClick={onHandleCancelClick} />
+                            </div>
                         </div>
-                    </div>
-                </FormContextProvider>
+                    </FormContextProvider>
+                </div>
             </div>
-        </div>
+        </>
     )
 }
 

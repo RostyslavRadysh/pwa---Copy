@@ -16,18 +16,17 @@ import Modal from '@/components/modals'
 import Locker from '@/components/lockers'
 import Input from '@/components/inputs'
 import Button from '@/components/buttons'
+import ScreenLoading from '@/components/screenLoading'
 import type { Button as ButtonModel } from '@/models/button'
 import type { Config as ConfigModel } from '@/models/config'
 import type { Device as DeviceModel } from '@/models/device'
 import type { Feedback as FeedbackModel } from '@/models/feedbak'
 import type { Menu as MenuModel } from '@/models/menu'
-import Settings from '@/icons/settings.svg'
+import Icon93 from '@/icons/icon-93.svg'
 
 const Index: FunctionComponent = () => {
     const router = useRouter()
     const { toast } = useToast()
-
-    const { baseUrl, basePath, token, deviceName, deviceId } = router.query
 
     const [buttons, setButtons] = useState<ButtonModel[] | undefined>(undefined)
     const [device, setDevice] = useState<DeviceModel | undefined>(undefined)
@@ -41,8 +40,19 @@ const Index: FunctionComponent = () => {
     const [isFeedbackOpen, setIsFeedbackOpen] = useState<boolean>(false)
 
     const [pinCode, setPinCode] = useState<string | undefined>(undefined)
+    
+    const [screenSaverImageUri, setScreenSaverImageUri] = useState<string | undefined>(undefined)
+    const [deviceName, setDeviceName] = useState<string | undefined>(undefined)
+    const [isLoading, setIsLoading] = useState<boolean>(false)
 
     useEffect(() => {
+        if(!router.isReady) return
+
+        const basePath = localStorage.getItem('basePath')
+        const baseUrl = localStorage.getItem('baseUrl')
+        const token = localStorage.getItem('token')
+        const deviceId = localStorage.getItem('deviceId')
+
         let onHandleRefresh = setInterval(async () => {
             try {
                 const { data: deviceResponse } = await axios.get<GetDeviceResponse>(`${baseUrl}/api/itaskdevices/${deviceId}`, {
@@ -59,7 +69,10 @@ const Index: FunctionComponent = () => {
                    device?.isPinCode !== deviceResponse.isPinCode ||
                    device?.pinCode !== deviceResponse.pinCode ||
                    device?.isSettings !== deviceResponse.isSettings ||
-                   device?.lastConnection !== deviceResponse.lastConnection) setDevice(deviceResponse)
+                   device?.lastConnection !== deviceResponse.lastConnection) {
+                    setDeviceName(deviceResponse.name)
+                    setDevice(deviceResponse)
+                }
 
                 if(deviceResponse.iTaskMenuId) {
                     const { data: menuResponse } = await axios.get<GetMenuResponse>(`${baseUrl}/api/itaskmenus/${deviceResponse.iTaskMenuId}`, {
@@ -118,7 +131,16 @@ const Index: FunctionComponent = () => {
                    config?.screenSaverBackgroundColor !== configResponse.screenSaverBackgroundColor ||
                    config?.screenSaverImageUrl !== configResponse.screenSaverImageUrl ||
                    config?.screenSaverText !== configResponse.screenSaverText ||
-                   config?.screenSaverTime !== configResponse.screenSaverTime) setConfig(configResponse)
+                   config?.screenSaverTime !== configResponse.screenSaverTime) { 
+                    if (configResponse.isScreenSaverImage) {
+                        setScreenSaverImageUri(`${(baseUrl ?? '').replace('/api', '/itransport')}/${config?.screenSaverImageUrl?.replace('~', '')}`)
+                    }
+                    else {
+                        setScreenSaverImageUri(`${basePath}/assets/logo-diractive.png`)
+                    }
+    
+                    setConfig(configResponse)
+                }
 
                 const date = (new Date()).toJSON()
                 await axios.patch<number>(`${baseUrl}/api/itaskdevices`, {
@@ -162,30 +184,36 @@ const Index: FunctionComponent = () => {
                 if (axios.isAxiosError(error)) {
                     switch(error.response?.status) {
                         case 404: {
-                            if(basePath) router.push(`${basePath}/loginUser.html?basePath=${basePath}`)
-                            else router.push(`/loginUser?basePath=${basePath}`)
+                            const basePath = localStorage.getItem('basePath')
+                            const format = localStorage.getItem('format')
+
+                            localStorage.removeItem('basePath')
+                            localStorage.removeItem('format')
+                            localStorage.removeItem('baseUrl')
+                            localStorage.removeItem('token')
+                            localStorage.removeItem('deviceId')
+
+                            router.push(`${basePath}/loginUser${format}?basePath=${basePath}&format=${format}`)
 
                             break
                         }
                         default: {
                             toast('Connection failed')
+
                             console.log('Unexpected error: ', error)
                             break
                         }
                     }
                 } else {
                     console.log('Unexpected error: ', error)
-
-                    if(basePath) router.push(`${basePath}/loginUser.html?basePath=${basePath}`)
-                    else router.push(`/loginUser?basePath=${basePath}`)
                 }
             }
-        }, 5 * 1000)
+        }, 60 * 1000)
 
         return () => {
             clearInterval(onHandleRefresh)
         }
-    }, [buttons, device, config, menu])
+    }, [buttons, device, config, menu, router.isReady])
 
     let onHandleMouseMoveTimer: NodeJS.Timeout;
     const onHandleMouseMove = () => {        
@@ -202,8 +230,16 @@ const Index: FunctionComponent = () => {
                 if (axios.isAxiosError(error)) {
                     switch(error.response?.status) {
                         case 404: {
-                            if(basePath) router.push(`${basePath}/loginUser.html?basePath=${basePath}`)
-                            else router.push(`/loginUser?basePath=${basePath}`)
+                            const basePath = localStorage.getItem('basePath')
+                            const format = localStorage.getItem('format')
+
+                            localStorage.removeItem('basePath')
+                            localStorage.removeItem('format')
+                            localStorage.removeItem('baseUrl')
+                            localStorage.removeItem('token')
+                            localStorage.removeItem('deviceId')
+
+                            router.push(`${basePath}/loginUser${format}?basePath=${basePath}&format=${format}`)
 
                             break
                         }
@@ -215,9 +251,6 @@ const Index: FunctionComponent = () => {
                     }
                 } else {
                     console.log('Unexpected error: ', error)
-
-                    if(basePath) router.push(`${basePath}/loginUser.html?basePath=${basePath}`)
-                    else router.push(`/loginUser?basePath=${basePath}`)
                 }
             }
         }, (config?.screenSaverTime ?? 0) * 1000)
@@ -234,25 +267,42 @@ const Index: FunctionComponent = () => {
     }, [device, config])
 
     const onHandleCreateTask = async (buttonId: number) => {
+        setIsLoading(true)
+
+        const baseUrl = localStorage.getItem('baseUrl')
+        const token = localStorage.getItem('token')
+        const deviceId = localStorage.getItem('deviceId')
+
         const { data: taskId } = await axios.get<number>(`${baseUrl}/api/tasks?iTaskDeviceId=${deviceId}&iTaskMenuButtonId=${buttonId}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
-        const button = buttons?.find(button => button.id == buttonId)
 
-        if(button?.feedbackTime) {
-            setFeedback({ 
-                taskId: taskId,
-                time: button.feedbackTime, 
-                text: button.feedbackText,
-                isAllowUndo: button.isAllowUndo 
-            })
-            setIsFeedbackOpen(true)
+        if (taskId == -1) {
+            toast('Failed to create task')
+        } else {
+            const button = buttons?.find(button => button.id == buttonId)
+
+            if(button?.feedbackTime) {
+                setFeedback({ 
+                    taskId: taskId,
+                    time: button.feedbackTime, 
+                    text: button.feedbackText,
+                    isAllowUndo: button.isAllowUndo 
+                })
+                setIsFeedbackOpen(true)
+            }
         }
+        setIsLoading(false)
     }
 
     const onHandleUndoCreateTaskClick = async (taskId: number) => {
+        setIsLoading(true)
+
+        const baseUrl = localStorage.getItem('baseUrl')
+        const token = localStorage.getItem('token')
+
         await axios.delete<boolean>(`${baseUrl}/api/tasks/${taskId}`, {
             headers: {
                 'Content-Type': 'application/json',
@@ -260,6 +310,13 @@ const Index: FunctionComponent = () => {
                 'Authorization': `Bearer ${token}`
             }
         })
+        setIsFeedbackOpen(false)
+
+        setIsLoading(false)
+    }
+
+    const onHandleOkayClick = () => {
+        setIsFeedbackOpen(false)
     }
 
     const onHandleValidatePinCode = () => {
@@ -272,103 +329,118 @@ const Index: FunctionComponent = () => {
     }
 
     const onHandleSettingsClick = () => {
-        if(basePath) router.push(`${basePath}/settings.html?baseUrl=${baseUrl}&basePath=${basePath}&token=${token}&deviceName=${deviceName}&deviceId=${deviceId}`)
-        else router.push(`/settings?baseUrl=${baseUrl}&basePath=${basePath}&token=${token}&deviceName=${deviceName}&deviceId=${deviceId}`)
-    }
-    
-    var screenSaverImageUri = ''
-    if (config?.isScreenSaverImage) {
-        screenSaverImageUri = `${(baseUrl as string ?? '').replace('/api', '/itransport')}/${config?.screenSaverImageUrl?.replace('~', '')}`
-    }
-    else if (!config?.isScreenSaverText) {
-        screenSaverImageUri = `${basePath}/assets/logo-diractive.png`
+        const basePath = localStorage.getItem('basePath')
+        const format = localStorage.getItem('format')
+
+        router.push(`${basePath}/settings${format}`)
     }
 
-    return (<>
-        <Locker isLocked={isLockerOpen}>
-            <div className="w-full h-full flex justify-center items-center">
-                <div className="block p-6 max-w-sm">
-                    <FormContextProvider onSubmit={onHandleValidatePinCode}>
-                        <div className="space-y-4">
-                            <Input
-                                type='password'
-                                label="Pin code"
-                                placeholder="Pin code"
-                                errorMessage="Incorrect Pin code"
-                                required
-                                minLength={1}
-                                maxLength={64}
-                                onChange={(value: string | undefined) => setPinCode(value)} />
-                            <div className="flex justify-center items-center">
-                                <Button
-                                    title="Validate"
-                                    type="submit" />
+    return (
+        <>
+            <ScreenLoading isLoading={isLoading} />
+            <Locker isLocked={isLockerOpen}>
+                <div className="w-full h-full flex justify-center items-center">
+                    <div className="block p-6 max-w-sm">
+                        <FormContextProvider onSubmit={onHandleValidatePinCode}>
+                            <div className="space-y-4">
+                                <Input
+                                    type='password'
+                                    label="Pin code"
+                                    placeholder="Pin code"
+                                    errorMessage="Incorrect Pin code"
+                                    required
+                                    minLength={1}
+                                    maxLength={64}
+                                    onChange={(value: string | undefined) => setPinCode(value)} />
+                                <div className="flex justify-center items-center">
+                                    <Button
+                                        title="Validate"
+                                        type="submit" />
+                                </div>
                             </div>
-                        </div>
-                    </FormContextProvider>
+                        </FormContextProvider>
+                    </div>
                 </div>
-            </div>
-        </Locker>
-        <Modal isOpen={isScreenSaverOpen}  
-            backgroundColor={config?.screenSaverBackgroundColor}  
-            imageUrl={screenSaverImageUri}  
-            onClick={(value) => setIsScreenSaverOpen(value)}>
-            {config?.isScreenSaverText && !config?.isScreenSaverImage && (  
-                <div className="fixed z-20"  
-                    onClick={() => setIsScreenSaverOpen(false)}>  
-                    <div className="w-full h-full flex justify-center items-center">  
-                        <h5 className="text-gray-900 text-xl leading-tight font-medium select-none cursor-default">  
-                            {config?.screenSaverText}  
-                        </h5>  
+            </Locker>
+            <Modal isOpen={isScreenSaverOpen}  
+                backgroundColor={config?.screenSaverBackgroundColor}  
+                imageUrl={screenSaverImageUri}  
+                onClick={(value) => setIsScreenSaverOpen(value)}>
+                {config?.isScreenSaverText && !config?.isScreenSaverImage && (  
+                    <div className="fixed z-30"  
+                        onClick={() => setIsScreenSaverOpen(false)}>  
+                        <div className="w-full h-full flex justify-center items-center">  
+                            <h5 className="text-gray-900 text-xl leading-tight font-medium select-none cursor-default">  
+                                {config?.screenSaverText}  
+                            </h5>  
+                        </div>  
                     </div>  
-                </div>  
-            )}  
-        </Modal>
-        <Modal isOpen={isMenuOpen}
-            onClick={(value) => setIsMenuOpen(value)}
-            backgroundColor={undefined}
-            imageUrl={undefined}>
-            <div className="bg-white fixed w-1/2 h-2/6 rounded shadow-md z-20">
-                <div className="w-full h-full flex justify-center items-center space-x-2">
-                    <h5 className="text-gray-900 text-xl leading-tight font-medium">
-                        {deviceName}
-                    </h5>
-                    <span className="cursor-pointer fill-black w-12 shrink-0 select-none" 
-                        onClick={onHandleSettingsClick}>
-                            <Settings />
-                    </span>
+                )}  
+            </Modal>
+            <Modal isOpen={isMenuOpen}
+                onClick={(value) => setIsMenuOpen(value)}
+                backgroundColor={undefined}
+                imageUrl={undefined}>
+                <div className="bg-white fixed w-1/2 h-2/6 rounded shadow-md z-30">
+                    <div className="w-full h-full flex justify-center items-center space-x-2">
+                        <h5 className="text-gray-900 text-xl leading-tight font-medium">
+                            {deviceName}
+                        </h5>
+                        <span className="cursor-pointer fill-black w-12 shrink-0 select-none" 
+                            onClick={onHandleSettingsClick}>
+                                <Icon93 />
+                        </span>
+                    </div>
                 </div>
-            </div>
-        </Modal>
-        <Modal isOpen={isFeedbackOpen}
-            onClick={(value) => setIsFeedbackOpen(value)}
-            backgroundColor={undefined}
-            imageUrl={undefined}>
-                {feedback?.isAllowUndo ? (
-                    <div className="bg-white fixed w-1/2 h-2/6 rounded shadow-md z-20">
-                        <div className="w-full h-full flex justify-center items-center space-y-4">
-                            <h5 className="text-gray-900 text-xl leading-tight font-medium">
-                                {feedback?.text}
-                            </h5>
-                            <div className="flex justify-center items-center">
-                                <Button title="Undo"
-                                    onClick={() => onHandleUndoCreateTaskClick(feedback?.taskId)} />
+            </Modal>
+            <Modal isOpen={isFeedbackOpen}
+                onClick={(value) => setIsFeedbackOpen(value)}
+                backgroundColor={config?.applicationBackgroundColor}
+                imageUrl={undefined}>
+                    {feedback?.isAllowUndo ? (
+                        <div className="bg-white fixed w-1/2 h-2/6 rounded shadow-md z-30">
+                            <div className="w-full h-full flex flex-col justify-center items-center space-y-4">
+                                <h5 className="text-gray-900 text-xl leading-tight font-medium">
+                                    {feedback?.text}
+                                </h5>
+                                <div className="flex justify-between items-center">
+                                    <Button
+                                        title="Okay"
+                                        onClick={onHandleOkayClick} />
+                                    <Button title="Undo"
+                                        color="white"
+                                        onClick={() => onHandleUndoCreateTaskClick(feedback?.taskId)} />
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ) : (
-                    <div className="bg-white fixed w-1/2 h-2/6 rounded shadow-md z-20">
-                        <div className="w-full h-full flex justify-center items-center">
-                            <h5 className="text-gray-900 text-xl leading-tight font-medium">
-                                {feedback?.text}
-                            </h5>
+                    ) : (
+                        <div className="bg-white fixed w-1/2 h-2/6 rounded shadow-md z-30">
+                            <div className="w-full h-full flex flex-col justify-center items-center space-y-4">
+                                <h5 className="text-gray-900 text-xl leading-tight font-medium">
+                                    {feedback?.text}
+                                </h5>
+                                <div className="flex justify-between items-center">
+                                    <Button
+                                        title="Okay"
+                                        onClick={onHandleOkayClick} />
+                                </div>
+                            </div>
                         </div>
+                    )}
+            </Modal>
+            {device?.isSettings && (
+                <Hammer direction="DIRECTION_DOWN"
+                    onPan={() => { if(!isMenuOpen) setIsMenuOpen(true) }}>
+                    <div className="w-screen h-screen" 
+                        style={{ backgroundColor: config?.applicationBackgroundColor }}>
+                        <DataGrid rows={menu?.rows ?? 0} 
+                                columns={menu?.columns ?? 0} 
+                                buttons={buttons} 
+                                onClick={onHandleCreateTask} />
                     </div>
-                )}
-        </Modal>
-        {device?.isSettings && (
-            <Hammer direction="DIRECTION_DOWN"
-                onPan={() => { if(!isMenuOpen) setIsMenuOpen(true) }}>
+                </Hammer>
+            )}
+            {!device?.isSettings && (
                 <div className="w-screen h-screen" 
                     style={{ backgroundColor: config?.applicationBackgroundColor }}>
                     <DataGrid rows={menu?.rows ?? 0} 
@@ -376,18 +448,9 @@ const Index: FunctionComponent = () => {
                             buttons={buttons} 
                             onClick={onHandleCreateTask} />
                 </div>
-            </Hammer>
-        )}
-        {!device?.isSettings && (
-            <div className="w-screen h-screen" 
-                style={{ backgroundColor: config?.applicationBackgroundColor }}>
-                <DataGrid rows={menu?.rows ?? 0} 
-                        columns={menu?.columns ?? 0} 
-                        buttons={buttons} 
-                        onClick={onHandleCreateTask} />
-            </div>
-        )}
-    </>)
+            )}
+        </>
+    )
 }
 
 export default Index

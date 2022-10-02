@@ -4,11 +4,11 @@ import React, { FunctionComponent,
 import type { PropsWithChildren } from 'react'
 import { createPortal } from 'react-dom'
 
-export interface ModalProps {
+export interface LockerProps {
     isLocked: boolean,
 }
 
-export const Locker: FunctionComponent<PropsWithChildren<ModalProps>> = ({ children, isLocked }: PropsWithChildren<ModalProps>) => {
+export const Locker: FunctionComponent<PropsWithChildren<LockerProps>> = ({ children, isLocked }: PropsWithChildren<LockerProps>) => {
     const [isLocker, setIsLocker] = useState<boolean>(false)
 
     useEffect(() => {

@@ -2,124 +2,134 @@ import React, { FunctionComponent,
     useMemo } from 'react'
 import type { ReactNode } from 'react'
 import { Button } from '@/models/button'
-import Ambulance from '@/icons/ambulance.svg'
-import Ambulance2 from '@/icons/ambulance2.svg'
-import Ambulance3 from '@/icons/ambulance3.svg'
-import Arrow from '@/icons/arrow.svg'
-import ArrowDown from '@/icons/arrowDown.svg'
-import ArrowLeft from '@/icons/arrowLeft.svg'
-import ArrowLeft2 from '@/icons/arrowLeft2.svg'
-import ArrowLeft3 from '@/icons/arrowLeft3.svg'
-import ArrowLeft4 from '@/icons/arrowLeft4.svg'
-import ArrowRight from '@/icons/arrowRight.svg'
-import ArrowRight2 from '@/icons/arrowRight2.svg'
-import ArrowUp from '@/icons/arrowUp.svg'
-import Bed from '@/icons/bed.svg'
-import Bed2 from '@/icons/bed2.svg'
-import Bin from '@/icons/bin.svg'
-import Boy from '@/icons/boy.svg'
-import Boy2 from '@/icons/boy2.svg'
-import Calendar from '@/icons/calendar.svg'
-import Case from '@/icons/case.svg'
-import Case2 from '@/icons/case2.svg'
-import Cleaning from '@/icons/cleaning.svg'
-import Cleaning2 from '@/icons/cleaning2.svg'
-import Cleaning3 from '@/icons/cleaning3.svg'
-import Cleaning4 from '@/icons/cleaning4.svg'
-import Cleaning5 from '@/icons/cleaning5.svg'
-import Cleaning6 from '@/icons/cleaning6.svg'
-import Cleaning7 from '@/icons/cleaning7.svg'
-import Cleaning8 from '@/icons/cleaning8.svg'
-import Cleaning9 from '@/icons/cleaning9.svg'
-import Cleaning10 from '@/icons/cleaning10.svg'
-import Cleaning11 from '@/icons/cleaning11.svg'
-import Cleaning12 from '@/icons/cleaning12.svg'
-import Cleaning13 from '@/icons/cleaning13.svg'
-import Cleaning14 from '@/icons/cleaning14.svg'
-import Cleaning15 from '@/icons/cleaning15.svg'
-import Cleaning16 from '@/icons/cleaning16.svg'
-import Clipboard from '@/icons/clipboard.svg'
-import Clock from '@/icons/clock.svg'
-import Close from '@/icons/close.svg'
-import Cross from '@/icons/cross.svg'
-import Delivery from '@/icons/delivery.svg'
-import Distance from '@/icons/distance.svg'
-import Download from '@/icons/download.svg'
-import Download2 from '@/icons/download2.svg'
-import Download3 from '@/icons/download3.svg'
-import Drop from '@/icons/drop.svg'
-import Envelope from '@/icons/envelope.svg'
-import Hand from '@/icons/hand.svg'
-import Hand2 from '@/icons/hand2.svg'
-import Hand3 from '@/icons/hand3.svg'
-import Hand4 from '@/icons/hand4.svg'
-import Heart from '@/icons/heart.svg'
-import Heart2 from '@/icons/heart2.svg'
-import Heart3 from '@/icons/heart3.svg'
-import Heart4 from '@/icons/heart4.svg'
-import Heart5 from '@/icons/heart5.svg'
-import Home from '@/icons/home.svg'
-import Home2 from '@/icons/home2.svg'
-import Hospital from '@/icons/hospital.svg'
-import Hospital2 from '@/icons/hospital2.svg'
-import Hospital3 from '@/icons/hospital3.svg'
-import Hospital4 from '@/icons/hospital4.svg'
-import Hospital5 from '@/icons/hospital5.svg'
-import Hospital6 from '@/icons/hospital6.svg'
-import Kitchen from '@/icons/kitchen.svg'
-import Loading from '@/icons/loading.svg'
-import Loading2 from '@/icons/loading2.svg'
-import Location from '@/icons/location.svg'
-import Lock from '@/icons/lock.svg'
-import Lock2 from '@/icons/lock2.svg'
-import Lungs from '@/icons/lungs.svg'
-import Mask from '@/icons/mask.svg'
-import Monitor from '@/icons/monitor.svg'
-import Monitor2 from '@/icons/monitor2.svg'
-import Nose from '@/icons/nose.svg'
-import Nose2 from '@/icons/nose2.svg'
-import Nurse from '@/icons/nurse.svg'
-import Nurse2 from '@/icons/nurse2.svg'
-import Nurse3 from '@/icons/nurse3.svg'
-import Off from '@/icons/off.svg'
-import Off2 from '@/icons/off2.svg'
-import Ok from '@/icons/ok.svg'
-import Ok2 from '@/icons/ok2.svg'
-import Package from '@/icons/package.svg'
-import Package2 from '@/icons/package2.svg'
-import Paper from '@/icons/paper.svg'
-import People from '@/icons/people.svg'
-import Phone from '@/icons/phone.svg'
-import Phone2 from '@/icons/phone2.svg'
-import Phone3 from '@/icons/phone3.svg'
-import Photo from '@/icons/photo.svg'
-import Pills from '@/icons/pills.svg'
-import Plunger from '@/icons/plunger.svg'
-import Printer from '@/icons/printer.svg'
-import Question from '@/icons/question.svg'
-import Scan from '@/icons/scan.svg'
-import Search from '@/icons/search.svg'
-import Settings from '@/icons/settings.svg'
-import Settings2 from '@/icons/settings2.svg'
-import Share from '@/icons/share.svg'
-import Stretcher from '@/icons/stretcher.svg'
-import Transport from '@/icons/transport.svg'
-import Transport2 from '@/icons/transport2.svg'
-import Transport3 from '@/icons/transport3.svg'
-import Transport4 from '@/icons/transport4.svg'
-import Troley from '@/icons/troley.svg'
-import Upload from '@/icons/upload.svg'
-import Upload2 from '@/icons/upload2.svg'
-import Upload3 from '@/icons/upload3.svg'
-import Virus from '@/icons/virus.svg'
-import Virus2 from '@/icons/virus2.svg'
-import Virus3 from '@/icons/virus3.svg'
-import Virus4 from '@/icons/virus4.svg'
-import Virus5 from '@/icons/virus5.svg'
-import Wheelchair from '@/icons/wheelchair.svg'
-import Wheelchair2 from '@/icons/wheelchair2.svg'
-import None from '@/icons/none.svg'
-
+import Icon0 from '@/icons/icon-0.svg'
+import Icon1 from '@/icons/icon-1.svg'
+import Icon2 from '@/icons/icon-2.svg'
+import Icon3 from '@/icons/icon-3.svg'
+import Icon4 from '@/icons/icon-4.svg'
+import Icon5 from '@/icons/icon-5.svg'
+import Icon6 from '@/icons/icon-6.svg'
+import Icon7 from '@/icons/icon-7.svg'
+import Icon8 from '@/icons/icon-8.svg'
+import Icon9 from '@/icons/icon-9.svg'
+import Icon10 from '@/icons/icon-10.svg'
+import Icon11 from '@/icons/icon-11.svg'
+import Icon12 from '@/icons/icon-12.svg'
+import Icon13 from '@/icons/icon-13.svg'
+import Icon14 from '@/icons/icon-14.svg'
+import Icon15 from '@/icons/icon-15.svg'
+import Icon16 from '@/icons/icon-16.svg'
+import Icon17 from '@/icons/icon-17.svg'
+import Icon18 from '@/icons/icon-18.svg'
+import Icon19 from '@/icons/icon-19.svg'
+import Icon20 from '@/icons/icon-20.svg'
+import Icon21 from '@/icons/icon-21.svg'
+import Icon22 from '@/icons/icon-22.svg'
+import Icon23 from '@/icons/icon-23.svg'
+import Icon24 from '@/icons/icon-24.svg'
+import Icon25 from '@/icons/icon-25.svg'
+import Icon26 from '@/icons/icon-26.svg'
+import Icon27 from '@/icons/icon-27.svg'
+import Icon28 from '@/icons/icon-28.svg'
+import Icon29 from '@/icons/icon-29.svg'
+import Icon30 from '@/icons/icon-30.svg'
+import Icon31 from '@/icons/icon-31.svg'
+import Icon32 from '@/icons/icon-32.svg'
+import Icon33 from '@/icons/icon-33.svg'
+import Icon34 from '@/icons/icon-34.svg'
+import Icon35 from '@/icons/icon-35.svg'
+import Icon36 from '@/icons/icon-36.svg'
+import Icon37 from '@/icons/icon-37.svg'
+import Icon38 from '@/icons/icon-38.svg'
+import Icon39 from '@/icons/icon-39.svg'
+import Icon40 from '@/icons/icon-40.svg'
+import Icon41 from '@/icons/icon-41.svg'
+import Icon42 from '@/icons/icon-42.svg'
+import Icon43 from '@/icons/icon-43.svg'
+import Icon44 from '@/icons/icon-44.svg'
+import Icon45 from '@/icons/icon-45.svg'
+import Icon46 from '@/icons/icon-46.svg'
+import Icon47 from '@/icons/icon-47.svg'
+import Icon48 from '@/icons/icon-48.svg'
+import Icon49 from '@/icons/icon-49.svg'
+import Icon50 from '@/icons/icon-50.svg'
+import Icon51 from '@/icons/icon-51.svg'
+import Icon52 from '@/icons/icon-52.svg'
+import Icon53 from '@/icons/icon-53.svg'
+import Icon54 from '@/icons/icon-54.svg'
+import Icon55 from '@/icons/icon-55.svg'
+import Icon56 from '@/icons/icon-56.svg'
+import Icon57 from '@/icons/icon-57.svg'
+import Icon58 from '@/icons/icon-58.svg'
+import Icon59 from '@/icons/icon-59.svg'
+import Icon60 from '@/icons/icon-60.svg'
+import Icon61 from '@/icons/icon-61.svg'
+import Icon62 from '@/icons/icon-62.svg'
+import Icon63 from '@/icons/icon-63.svg'
+import Icon64 from '@/icons/icon-64.svg'
+import Icon65 from '@/icons/icon-65.svg'
+import Icon66 from '@/icons/icon-66.svg'
+import Icon67 from '@/icons/icon-67.svg'
+import Icon68 from '@/icons/icon-68.svg'
+import Icon69 from '@/icons/icon-69.svg'
+import Icon70 from '@/icons/icon-70.svg'
+import Icon71 from '@/icons/icon-71.svg'
+import Icon72 from '@/icons/icon-72.svg'
+import Icon73 from '@/icons/icon-73.svg'
+import Icon74 from '@/icons/icon-74.svg'
+import Icon75 from '@/icons/icon-75.svg'
+import Icon76 from '@/icons/icon-76.svg'
+import Icon77 from '@/icons/icon-77.svg'
+import Icon78 from '@/icons/icon-78.svg'
+import Icon79 from '@/icons/icon-79.svg'
+import Icon80 from '@/icons/icon-80.svg'
+import Icon81 from '@/icons/icon-81.svg'
+import Icon82 from '@/icons/icon-82.svg'
+import Icon83 from '@/icons/icon-83.svg'
+import Icon84 from '@/icons/icon-84.svg'
+import Icon85 from '@/icons/icon-85.svg'
+import Icon86 from '@/icons/icon-86.svg'
+import Icon87 from '@/icons/icon-87.svg'
+import Icon88 from '@/icons/icon-88.svg'
+import Icon89 from '@/icons/icon-89.svg'
+import Icon90 from '@/icons/icon-90.svg'
+import Icon91 from '@/icons/icon-91.svg'
+import Icon92 from '@/icons/icon-92.svg'
+import Icon93 from '@/icons/icon-93.svg'
+import Icon94 from '@/icons/icon-94.svg'
+import Icon95 from '@/icons/icon-95.svg'
+import Icon96 from '@/icons/icon-96.svg'
+import Icon97 from '@/icons/icon-97.svg'
+import Icon98 from '@/icons/icon-98.svg'
+import Icon99 from '@/icons/icon-99.svg'
+import Icon100 from '@/icons/icon-100.svg'
+import Icon101 from '@/icons/icon-101.svg'
+import Icon102 from '@/icons/icon-102.svg'
+import Icon103 from '@/icons/icon-103.svg'
+import Icon104 from '@/icons/icon-104.svg'
+import Icon105 from '@/icons/icon-105.svg'
+import Icon106 from '@/icons/icon-106.svg'
+import Icon107 from '@/icons/icon-107.svg'
+import Icon108 from '@/icons/icon-108.svg'
+import Icon109 from '@/icons/icon-109.svg'
+import Icon110 from '@/icons/icon-110.svg'
+import Icon111 from '@/icons/icon-111.svg'
+import Icon112 from '@/icons/icon-112.svg'
+import Icon113 from '@/icons/icon-113.svg'
+import Icon114 from '@/icons/icon-114.svg'
+import Icon115 from '@/icons/icon-115.svg'
+import Icon116 from '@/icons/icon-116.svg'
+import Icon117 from '@/icons/icon-117.svg'
+import Icon118 from '@/icons/icon-118.svg'
+import Icon119 from '@/icons/icon-119.svg'
+import Icon120 from '@/icons/icon-120.svg'
+import Icon121 from '@/icons/icon-121.svg'
+import Icon122 from '@/icons/icon-122.svg'
+import Icon123 from '@/icons/icon-123.svg'
+import Icon124 from '@/icons/icon-124.svg'
+import Icon125 from '@/icons/icon-125.svg'
+import Icon126 from '@/icons/icon-126.svg'
+import Icon127 from '@/icons/icon-127.svg'
 
 
 export interface DataGridProps {
@@ -138,492 +148,536 @@ const DataGrid: FunctionComponent<DataGridProps> = ({ rows, columns, buttons, on
                 let icon: JSX.Element | undefined
                 switch(button?.icon) {
                     case 1: {
-                        icon = <Ambulance />
+                        icon = <Icon1 />
                         break
                     }
                     case 2: {
-                        icon = <Ambulance2 />
+                        icon = <Icon2 />
                         break
                     }
                     case 3: {
-                        icon = <Ambulance3 />
+                        icon = <Icon3 />
                         break
                     }
                     case 4: {
-                        icon = <Arrow />
+                        icon = <Icon4 />
                         break
                     }
                     case 5: {
-                        icon = <ArrowDown />
+                        icon = <Icon5 />
                         break
                     }
                     case 6: {
-                        icon = <ArrowLeft />
+                        icon = <Icon6 />
                         break
                     }
                     case 7: {
-                        icon = <ArrowLeft2 />
+                        icon = <Icon7 />
                         break
                     }
                     case 8: {
-                        icon = <ArrowLeft3 />
+                        icon = <Icon8 />
                         break
                     }
                     case 9: {
-                        icon = <ArrowLeft4 />
+                        icon = <Icon9 />
                         break
                     }
                     case 10: {
-                        icon = <ArrowRight />
+                        icon = <Icon10 />
                         break
                     }
                     case 11: {
-                        icon = <ArrowRight2 />
+                        icon = <Icon11 />
                         break
                     }
                     case 12: {
-                        icon = <ArrowUp />
+                        icon = <Icon12 />
                         break
                     }
                     case 13: {
-                        icon = <Bed />
+                        icon = <Icon13 />
                         break
                     }
                     case 14: {
-                        icon = <Bed2 />
+                        icon = <Icon14 />
                         break
                     }
                     case 15: {
-                        icon = <Bin />
+                        icon = <Icon15 />
                         break
                     }
                     case 16: {
-                        icon = <Boy />
+                        icon = <Icon16 />
                         break
                     }
                     case 17: {
-                        icon = <Boy2 />
+                        icon = <Icon17 />
                         break
                     }
                     case 18: {
-                        icon = <Calendar />
+                        icon = <Icon18 />
                         break
                     }
                     case 19: {
-                        icon = <Case />
+                        icon = <Icon19 />
                         break
                     }
                     case 20: {
-                        icon = <Case2 />
+                        icon = <Icon20 />
                         break
                     }
                     case 21: {
-                        icon = <Cleaning />
+                        icon = <Icon21 />
                         break
                     }
                     case 22: {
-                        icon = <Cleaning2 />
+                        icon = <Icon22 />
                         break
                     }
                     case 23: {
-                        icon = <Cleaning3 />
+                        icon = <Icon23 />
                         break
                     }
                     case 24: {
-                        icon = <Cleaning4 />
+                        icon = <Icon24 />
                         break
                     }
                     case 25: {
-                        icon = <Cleaning5 />
+                        icon = <Icon25 />
                         break
                     }
                     case 26: {
-                        icon = <Cleaning6 />
+                        icon = <Icon26 />
                         break
                     }
                     case 27: {
-                        icon = <Cleaning7 />
+                        icon = <Icon27 />
                         break
                     }
                     case 28: {
-                        icon = <Cleaning8 />
+                        icon = <Icon28 />
                         break
                     }
                     case 29: {
-                        icon = <Cleaning9 />
+                        icon = <Icon29 />
                         break
                     }
                     case 30: {
-                        icon = <Cleaning10 />
+                        icon = <Icon30 />
                         break
                     }
                     case 31: {
-                        icon = <Cleaning11 />
+                        icon = <Icon31 />
                         break
                     }
                     case 32: {
-                        icon = <Cleaning12 />
+                        icon = <Icon32 />
                         break
                     }
                     case 33: {
-                        icon = <Cleaning13 />
+                        icon = <Icon33 />
                         break
                     }
                     case 34: {
-                        icon = <Cleaning14 />
+                        icon = <Icon34 />
                         break
                     }
                     case 35: {
-                        icon = <Cleaning15 />
+                        icon = <Icon35 />
                         break
                     }
                     case 36: {
-                        icon = <Cleaning16 />
+                        icon = <Icon36 />
                         break
                     }
                     case 37: {
-                        icon = <Clipboard />
+                        icon = <Icon37 />
                         break
                     }
                     case 38: {
-                        icon = <Clock />
+                        icon = <Icon38 />
                         break
                     }
                     case 39: {
-                        icon = <Close />
+                        icon = <Icon39 />
                         break
                     }
                     case 40: {
-                        icon = <Cross />
+                        icon = <Icon40 />
                         break
                     }
                     case 41: {
-                        icon = <Delivery />
+                        icon = <Icon41 />
                         break
                     }
                     case 42: {
-                        icon = <Distance />
+                        icon = <Icon42 />
                         break
                     }
                     case 43: {
-                        icon = <Download />
+                        icon = <Icon43 />
                         break
                     }
                     case 44: {
-                        icon = <Download2 />
+                        icon = <Icon44 />
                         break
                     }
                     case 45: {
-                        icon = <Download3 />
+                        icon = <Icon45 />
                         break
                     }
                     case 46: {
-                        icon = <Drop />
+                        icon = <Icon46 />
                         break
                     }
                     case 47: {
-                        icon = <Envelope />
+                        icon = <Icon47 />
                         break
                     }
                     case 48: {
-                        icon = <Hand />
+                        icon = <Icon48 />
                         break
                     }
                     case 49: {
-                        icon = <Hand2 />
+                        icon = <Icon49 />
                         break
                     }
                     case 50: {
-                        icon = <Hand3 />
+                        icon = <Icon50 />
                         break
                     }
                     case 51: {
-                        icon = <Hand4 />
+                        icon = <Icon51 />
                         break
                     }
                     case 52: {
-                        icon = <Heart />
+                        icon = <Icon52 />
                         break
                     }
                     case 53: {
-                        icon = <Heart2 />
+                        icon = <Icon53 />
                         break
                     }
                     case 54: {
-                        icon = <Heart3 />
+                        icon = <Icon54 />
                         break
                     }
                     case 55: {
-                        icon = <Heart4 />
+                        icon = <Icon55 />
                         break
                     }
                     case 56: {
-                        icon = <Heart5 />
+                        icon = <Icon56 />
                         break
                     }
                     case 57: {
-                        icon = <Home />
+                        icon = <Icon57 />
                         break
                     }
                     case 58: {
-                        icon = <Home2 />
+                        icon = <Icon58 />
                         break
                     }
                     case 59: {
-                        icon = <Hospital />
+                        icon = <Icon59 />
                         break
                     }
                     case 60: {
-                        icon = <Hospital2 />
+                        icon = <Icon60 />
                         break
                     }
                     case 61: {
-                        icon = <Hospital3 />
+                        icon = <Icon61 />
                         break
                     }
                     case 62: {
-                        icon = <Hospital4 />
+                        icon = <Icon62 />
                         break
                     }
                     case 63: {
-                        icon = <Hospital5 />
+                        icon = <Icon63 />
                         break
                     }
                     case 64: {
-                        icon = <Hospital6 />
+                        icon = <Icon64 />
                         break
                     }
                     case 65: {
-                        icon = <Kitchen />
+                        icon = <Icon65 />
                         break
                     }
                     case 66: {
-                        icon = <Loading />
+                        icon = <Icon66 />
                         break
                     }
                     case 67: {
-                        icon = <Loading2 />
+                        icon = <Icon67 />
                         break
                     }
                     case 68: {
-                        icon = <Location />
+                        icon = <Icon68 />
                         break
                     }
                     case 69: {
-                        icon = <Lock />
+                        icon = <Icon69 />
                         break
                     }
                     case 70: {
-                        icon = <Lock2 />
+                        icon = <Icon70 />
                         break
                     }
                     case 71: {
-                        icon = <Lungs />
+                        icon = <Icon71 />
                         break
                     }
                     case 72: {
-                        icon = <Mask />
+                        icon = <Icon72 />
                         break
                     }
                     case 73: {
-                        icon = <Monitor />
+                        icon = <Icon73 />
                         break
                     }
                     case 74: {
-                        icon = <Monitor2 />
+                        icon = <Icon74 />
                         break
                     }
                     case 75: {
-                        icon = <Nose />
+                        icon = <Icon75 />
                         break
                     }
                     case 76: {
-                        icon = <Nose2 />
+                        icon = <Icon76 />
                         break
                     }
                     case 77: {
-                        icon = <Nurse />
+                        icon = <Icon77 />
                         break
                     }
                     case 78: {
-                        icon = <Nurse2 />
+                        icon = <Icon78 />
                         break
                     }
                     case 79: {
-                        icon = <Nurse3 />
+                        icon = <Icon79 />
                         break
                     }
                     case 80: {
-                        icon = <Off />
+                        icon = <Icon80 />
                         break
                     }
                     case 81: {
-                        icon = <Off2 />
+                        icon = <Icon81 />
                         break
                     }
                     case 82: {
-                        icon = <Ok />
+                        icon = <Icon82 />
                         break
                     }
                     case 83: {
-                        icon = <Ok2 />
+                        icon = <Icon83 />
                         break
                     }
                     case 84: {
-                        icon = <Package />
+                        icon = <Icon84 />
                         break
                     }
                     case 85: {
-                        icon = <Package2 />
+                        icon = <Icon85 />
                         break
                     }
                     case 86: {
-                        icon = <Paper />
+                        icon = <Icon86 />
                         break
                     }
                     case 87: {
-                        icon = <People />
+                        icon = <Icon87 />
                         break
                     }
                     case 88: {
-                        icon = <Phone />
+                        icon = <Icon88 />
                         break
                     }
                     case 89: {
-                        icon = <Phone2 />
+                        icon = <Icon89 />
                         break
                     }
                     case 90: {
-                        icon = <Phone3 />
+                        icon = <Icon90 />
                         break
                     }
                     case 91: {
-                        icon = <Photo />
+                        icon = <Icon91 />
                         break
                     }
                     case 92: {
-                        icon = <Pills />
+                        icon = <Icon92 />
                         break
                     }
                     case 93: {
-                        icon = <Plunger />
+                        icon = <Icon93 />
                         break
                     }
                     case 94: {
-                        icon = <Printer />
+                        icon = <Icon94 />
                         break
                     }
                     case 95: {
-                        icon = <Question />
+                        icon = <Icon95 />
                         break
                     }
                     case 96: {
-                        icon = <Scan />
+                        icon = <Icon96 />
                         break
                     }
                     case 97: {
-                        icon = <Search />
+                        icon = <Icon97 />
                         break
                     }
                     case 98: {
-                        icon = <Settings />
+                        icon = <Icon98 />
                         break
                     }
                     case 99: {
-                        icon = <Settings2 />
+                        icon = <Icon99 />
                         break
                     }
                     case 100: {
-                        icon = <Share />
+                        icon = <Icon100 />
                         break
                     }
                     case 101: {
-                        icon = <Stretcher />
+                        icon = <Icon101 />
                         break
                     }
                     case 102: {
-                        icon = <Transport />
+                        icon = <Icon102 />
                         break
                     }
                     case 103: {
-                        icon = <Transport2 />
+                        icon = <Icon103 />
                         break
                     }
                     case 104: {
-                        icon = <Transport3 />
+                        icon = <Icon104 />
                         break
                     }
                     case 105: {
-                        icon = <Transport4 />
+                        icon = <Icon105 />
                         break
                     }
                     case 106: {
-                        icon = <Troley />
+                        icon = <Icon106 />
                         break
                     }
                     case 107: {
-                        icon = <Upload />
+                        icon = <Icon107 />
                         break
                     }
                     case 108: {
-                        icon = <Upload2 />
+                        icon = <Icon108 />
                         break
                     }
                     case 109: {
-                        icon = <Upload3 />
+                        icon = <Icon109 />
                         break
                     }
                     case 110: {
-                        icon = <Virus />
+                        icon = <Icon110 />
                         break
                     }
                     case 111: {
-                        icon = <Virus2 />
+                        icon = <Icon111 />
                         break
                     }
                     case 112: {
-                        icon = <Virus3 />
+                        icon = <Icon112 />
                         break
                     }
                     case 113: {
-                        icon = <Virus4 />
+                        icon = <Icon113 />
                         break
                     }
                     case 114: {
-                        icon = <Virus5 />
+                        icon = <Icon114 />
                         break
                     }
                     case 115: {
-                        icon = <Wheelchair />
+                        icon = <Icon115 />
                         break
                     }
                     case 116: {
-                        icon = <Wheelchair2 />
+                        icon = <Icon116 />
+                        break
+                    }
+                    case 117: {
+                        icon = <Icon117 />
+                        break
+                    }
+                    case 118: {
+                        icon = <Icon118 />
+                        break
+                    }
+                    case 119: {
+                        icon = <Icon119 />
+                        break
+                    }
+                    case 120: {
+                        icon = <Icon120 />
+                        break
+                    }
+                    case 121: {
+                        icon = <Icon121 />
+                        break
+                    }
+                    case 122: {
+                        icon = <Icon122 />
+                        break
+                    }
+                    case 123: {
+                        icon = <Icon123 />
+                        break
+                    }
+                    case 124: {
+                        icon = <Icon124 />
+                        break
+                    }
+                    case 125: {
+                        icon = <Icon125 />
+                        break
+                    }
+                    case 126: {
+                        icon = <Icon126 />
+                        break
+                    }
+                    case 127: {
+                        icon = <Icon127 />
                         break
                     }
                     default: {
-                        icon = <None />
+                        icon = <Icon0 />
                         break
                     }
                 }
 
                 divs.push(
                     <div key={column} className="relative w-full h-full">
-                        <div className="flex justify-center items-center w-full h-full">
+                        <div className="flex justify-center items-center w-full h-full z-10">
                             <div className="flex w-1/2 h-1/2 rounded shadow-md cursor-pointer"
                                 style={{ backgroundColor: button.backgroundColor }}
                                 onClick={() => onClick(button.id)}>
                                 {button.icon === 0 && (
                                     <div className="relative w-full h-full">
                                         <div className="absolute top-0 left-0 flex justify-center items-center w-full h-full">
-                                            <div className="text-gray-900 text-xl leading-tight font-medium">
+                                            <div className="text-gray-900 text-xl leading-tight font-medium truncate">
                                                 {button.label}
                                             </div>
                                         </div>
                                     </div>
                                 )}
                                 {button.icon !== 0 && (
-                                    <div className="relative w-full h-full">
+                                    <div className="relative w-full h-full z-0">
                                         <div className="absolute top-0 left-0 flex justify-center items-center w-full h-full">
                                             <div className="absolute w-1/2"
                                                 style={{ fill: button.iconColor }}>
@@ -637,7 +691,7 @@ const DataGrid: FunctionComponent<DataGridProps> = ({ rows, columns, buttons, on
                         {button.icon !== 0 && button.label && (
                             <div className="absolute bottom-0 left-0 w-full h-2/6">
                                 <div className="flex justify-center items-center w-full h-full">
-                                    <div className=" text-gray-900 text-xl leading-tight font-medium">
+                                    <div className=" text-gray-900 text-xl leading-tight font-medium truncate w-1/2">
                                         {button.label}
                                     </div>
                                 </div>

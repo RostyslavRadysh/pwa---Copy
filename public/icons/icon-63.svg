@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 24.3.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Laag_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 1024 1024" style="enable-background:new 0 0 1024 1024;" xml:space="preserve">
+<style type="text/css">
+	.st0{clip-path:url(#SVGID_2_);fill:none;stroke:#000000;stroke-width:36.457;stroke-miterlimit:10;}
+	
+		.st1{clip-path:url(#SVGID_2_);fill:none;stroke:#000000;stroke-width:36.457;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st2{clip-path:url(#SVGID_2_);fill:none;stroke:#000000;stroke-width:36.457;stroke-linejoin:round;stroke-miterlimit:10;}
+</style>
+<g>
+	<defs>
+		<rect id="SVGID_1_" x="50" y="50" width="924" height="874.96"/>
+	</defs>
+	<clipPath id="SVGID_2_">
+		<use xlink:href="#SVGID_1_"  style="overflow:visible;"/>
+	</clipPath>
+	<path class="st0" d="M-567.72,724.45c0,20.12-16.33,36.46-36.46,36.46h-729.14c-20.12,0-36.46-16.33-36.46-36.46V232.28
+		c0-20.12,16.33-36.46,36.46-36.46h729.14c20.12,0,36.46,16.33,36.46,36.46V724.45z"/>
+	<path class="st0" d="M-622.41,250.51l-256.11,256.11c-49.84,49.84-130.62,49.84-180.46,0l-256.11-256.11"/>
+	<path class="st1" d="M908.78,779.14c0-187.99-152.59-401.02-346.34-401.02h-36.46v-127.6L234.33,487.48l291.65,236.97V578.62h54.68
+		c145.06,0,255.2,112.8,255.2,200.51"/>
+	<polyline class="st1" points="398.38,232.28 88.5,487.48 398.38,742.68 	"/>
+	<path class="st2" d="M2184.62,223.01l128.2,46.67c28.38,10.33,43.02,41.71,32.68,70.09l-193.26,531.01
+		c-10.3,28.25-41.83,42.97-70.11,32.68l-274.06-99.76c-28.27-10.28-42.96-41.82-32.68-70.09l56.42-154.98"/>
+	<path class="st0" d="M2148.31,298.31c0-127.07-132.54-230.08-296.07-230.08c-163.51,0-296.07,103.01-296.07,230.08
+		s132.56,230.08,296.07,230.08c18.08,0,35.71-1.46,52.9-3.88c32.99,27.49,76.67,56.73,135.73,87.33
+		c21.53,11.15,27.32,3.76,16.06-17.7c-20.29-38.66-28.53-76.16-31.21-109.68C2099.89,442.64,2148.31,374.96,2148.31,298.31z"/>
+	<path class="st0" d="M2020.71,378.11c0,20.12-16.33,36.46-36.46,36.46h-255.2c-20.12,0-36.46-16.33-36.46-36.46V214.06
+		c0-20.12,16.33-36.46,36.46-36.46h255.2c20.12,0,36.46,16.33,36.46,36.46V378.11z"/>
+	<path class="st0" d="M2011.06,221.51l-135.51,90.54c-13.51,9.02-33.12,9.02-46.63,0l-135.49-90.54"/>
+</g>
+</svg>
