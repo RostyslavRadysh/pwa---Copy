@@ -17,7 +17,7 @@ export const Modal: FunctionComponent<PropsWithChildren<ModalProps>> = ({ childr
                     backgroundRepeat: 'no-repeat', 
                     backgroundPosition: 'center',   
                     backgroundColor: backgroundColor,
-                    backgroundSize: 'contain' }}
+                    backgroundSize: '50%' }}
                 onClick={() => onClick(!isOpen)} />
                     {children}
             </div>,

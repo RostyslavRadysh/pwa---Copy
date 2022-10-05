@@ -691,7 +691,7 @@ const DataGrid: FunctionComponent<DataGridProps> = ({ rows, columns, buttons, on
                         {button.icon !== 0 && button.label && (
                             <div className="absolute bottom-0 left-0 w-full h-2/6">
                                 <div className="flex justify-center items-center w-full h-full">
-                                    <div className=" text-gray-900 text-xl leading-tight font-medium truncate w-1/2">
+                                    <div className=" text-gray-900 text-xl leading-tight font-medium truncate w-1/2 text-center">
                                         {button.label}
                                     </div>
                                 </div>
