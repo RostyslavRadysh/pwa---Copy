@@ -670,7 +670,7 @@ const DataGrid: FunctionComponent<DataGridProps> = ({ rows, columns, buttons, on
                                 {button.icon === 0 && (
                                     <div className="relative w-full h-full">
                                         <div className="absolute top-0 left-0 flex justify-center items-center w-full h-full">
-                                            <div className="text-gray-900 text-xl leading-tight font-medium truncate">
+                                            <div className="text-gray-900 text-xl leading-tight font-medium truncate p-4">
                                                 {button.label}
                                             </div>
                                         </div>
@@ -691,7 +691,7 @@ const DataGrid: FunctionComponent<DataGridProps> = ({ rows, columns, buttons, on
                         {button.icon !== 0 && button.label && (
                             <div className="absolute bottom-0 left-0 w-full h-2/6">
                                 <div className="flex justify-center items-center w-full h-full">
-                                    <div className=" text-gray-900 text-xl leading-tight font-medium truncate w-1/2 text-center">
+                                    <div className="text-gray-900 text-xl leading-tight font-medium truncate w-1/2 text-center">
                                         {button.label}
                                     </div>
                                 </div>

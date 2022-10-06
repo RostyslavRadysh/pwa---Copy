@@ -399,11 +399,11 @@ const Index: FunctionComponent = () => {
                 imageUrl={undefined}>
                     {feedback?.isAllowUndo ? (
                         <div className="bg-white fixed w-1/2 h-2/6 rounded shadow-md z-30">
-                            <div className="w-full h-full flex flex-col justify-center items-center space-y-4">
+                            <div className="w-full h-full flex flex-col justify-center items-center space-y-4 p-6">
                                 <h5 className="text-gray-900 text-xl leading-tight font-medium">
                                     {feedback?.text}
                                 </h5>
-                                <div className="flex justify-between items-center">
+                                <div className="flex justify-center items-center w-full space-x-4">
                                     <Button
                                         title="Okay"
                                         onClick={onHandleOkayClick} />

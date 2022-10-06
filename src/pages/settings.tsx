@@ -202,7 +202,7 @@ const Settings: FunctionComponent = () => {
         const basePath = localStorage.getItem('basePath')
         const format = localStorage.getItem('format')
 
-        router.push(`${basePath}/index${format}`)
+        router.push(`${basePath}/${format ? 'index' : ''}${format}`)
     }
 
     return (
@@ -214,7 +214,6 @@ const Settings: FunctionComponent = () => {
                         <div className="space-y-4">
                             <Input
                                 label="Device name"
-                                defaultValue={deviceName as string}
                                 placeholder="Device name"
                                 errorMessage="Incorrect Device name"
                                 required

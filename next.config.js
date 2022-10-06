@@ -1,3 +1,5 @@
+const isDevelopment = process.env.NODE_ENV === 'development'
+
 module.exports = {
   webpack(config) {
     config.module.rules.push({
@@ -7,5 +9,5 @@ module.exports = {
 
     return config;
   },
-  assetPrefix: "./"
+  assetPrefix: isDevelopment ? "" : "./"
 }
