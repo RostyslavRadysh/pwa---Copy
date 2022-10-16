@@ -43,172 +43,194 @@ const Index: FunctionComponent = () => {
     
     const [screenSaverImageUri, setScreenSaverImageUri] = useState<string | undefined>(undefined)
     const [deviceName, setDeviceName] = useState<string | undefined>(undefined)
+
     const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [isDirty, setIsDirty] = useState<boolean>(false)
+
+    const refreshData = async (basePath: string | null, format: string | null, baseUrl: string | null, token: string | null, deviceId: string | null) => {
+        try {
+            const { data: deviceResponse } = await axios.get<GetDeviceResponse>(`${baseUrl}/api/itaskdevices/${deviceId}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            if(device?.id !== deviceResponse.id ||
+               device?.iTaskMenuId !== deviceResponse.iTaskMenuId ||
+               device?.departmentId !== deviceResponse.departmentId ||
+               device?.name !== deviceResponse.name ||
+               device?.isPinCode !== deviceResponse.isPinCode ||
+               device?.pinCode !== deviceResponse.pinCode ||
+               device?.isSettings !== deviceResponse.isSettings ||
+               device?.lastConnection !== deviceResponse.lastConnection) {
+                setDeviceName(deviceResponse.name)
+                setDevice(deviceResponse)
+            }
+
+            if(deviceResponse.iTaskMenuId) {
+                const { data: menuResponse } = await axios.get<GetMenuResponse>(`${baseUrl}/api/itaskmenus/${deviceResponse.iTaskMenuId}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                if(menu?.id !== menuResponse.id ||
+                   menu?.title !== menuResponse.title ||
+                   menu?.rows !== menuResponse.rows ||
+                   menu?.columns !== menuResponse.columns) setMenu(menuResponse)
+            }
+
+            if(deviceResponse.iTaskMenuId) {
+                const { data: buttonsResponse } = await axios.get<GetButtonsResponse>(`${baseUrl}/api/itaskmenus/${deviceResponse.iTaskMenuId}/buttons`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+
+                let isEqual = true
+                if (buttons?.length !== buttonsResponse.entities.length) isEqual = false
+                else {
+                    for (var index = 0, length = buttons?.length ?? 0; index < length; index++) { 
+                        if (buttons[index]?.id != buttonsResponse.entities[index]?.id ||
+                            buttons[index]?.iTaskMenuId != buttonsResponse.entities[index]?.iTaskMenuId ||
+                            buttons[index]?.taskPresetId != buttonsResponse.entities[index]?.taskPresetId ||
+                            buttons[index]?.row != buttonsResponse.entities[index]?.row ||
+                            buttons[index]?.column != buttonsResponse.entities[index]?.column ||
+                            buttons[index]?.icon != buttonsResponse.entities[index]?.icon ||
+                            buttons[index]?.label != buttonsResponse.entities[index]?.label ||
+                            buttons[index]?.backgroundColor != buttonsResponse.entities[index]?.backgroundColor ||
+                            buttons[index]?.iconColor != buttonsResponse.entities[index]?.iconColor ||
+                            buttons[index]?.feedbackTime != buttonsResponse.entities[index]?.feedbackTime ||
+                            buttons[index]?.feedbackText != buttonsResponse.entities[index]?.feedbackText ||
+                            buttons[index]?.isAllowUndo != buttonsResponse.entities[index]?.isAllowUndo) isEqual = false        
+                    }  
+                }     
+
+                if(!isEqual) setButtons(buttonsResponse.entities)
+            }
+            const { data: configResponse } = await axios.get<GetConfigResponse>(`${baseUrl}/api/itasksettings`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            if(config?.applicationBackgroundColor !== configResponse.applicationBackgroundColor ||
+               config?.isScreenSaverImage !== configResponse.isScreenSaverImage ||
+               config?.isScreenSaverText !== configResponse.isScreenSaverText ||
+               config?.screenSaverBackgroundColor !== configResponse.screenSaverBackgroundColor ||
+               config?.screenSaverImageUrl !== configResponse.screenSaverImageUrl ||
+               config?.screenSaverText !== configResponse.screenSaverText ||
+               config?.screenSaverTime !== configResponse.screenSaverTime) { 
+                if (configResponse.isScreenSaverImage) {
+                    setScreenSaverImageUri(`${(baseUrl ?? '').replace('/api', '/itransport')}/${config?.screenSaverImageUrl?.replace('~', '')}`)
+                }
+                else {
+                    setScreenSaverImageUri(`${basePath}/assets/logo-diractive.png`)
+                }
+
+                setConfig(configResponse)
+            }
+
+            const date = (new Date()).toJSON()
+            await axios.patch<number>(`${baseUrl}/api/itaskdevices`, {
+                id: deviceResponse?.id,
+                iTaskMenuId: {
+                    value: deviceResponse?.iTaskMenuId,
+                    isChanged: false
+                },
+                departmentId: {
+                    value: deviceResponse?.departmentId,
+                    isChanged: false
+                },
+                name: {
+                    value: deviceResponse?.name,
+                    isChanged: false
+                },
+                isPinCode: {
+                    value: deviceResponse?.isPinCode,
+                    isChanged: false
+                },
+                pinCode: {
+                    value: deviceResponse?.pinCode,
+                    isChanged: false
+                },
+                isSettings: {
+                    value: deviceResponse?.isSettings,
+                    isChanged: false
+                },
+                lastConnectionTime: {
+                    value: date,
+                    isChanged: true
+                }
+            } as UpdateDeviceRequest, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                switch(error.response?.status) {
+                    case 401:
+                    case 404: {
+                        localStorage.removeItem('basePath')
+                        localStorage.removeItem('format')
+                        localStorage.removeItem('baseUrl')
+                        localStorage.removeItem('token')
+                        localStorage.removeItem('deviceId')
+
+                        router.push(`${basePath}/loginUser${format}?basePath=${basePath}&format=${format}`)
+                        break
+                    }
+                    default: {
+                        toast('Connection failed')
+                        console.log('Unexpected error: ', error)
+                        break
+                    }
+                }
+            } else {
+                console.log('Unexpected error: ', error)
+            }
+        }
+    }
+
+    useEffect(() => {
+        if(!router.isReady) return
+
+        if (!isDirty) {
+            setIsLoading(true)
+
+            const basePath = localStorage.getItem('basePath')
+            const format = localStorage.getItem('format')
+            const baseUrl = localStorage.getItem('baseUrl')
+            const token = localStorage.getItem('token')
+            const deviceId = localStorage.getItem('deviceId')
+    
+            refreshData(basePath, format, baseUrl, token, deviceId)
+            
+            setIsDirty(true)
+        }
+        else {
+            setIsLoading(false)
+        }
+    }, [isDirty, router.isReady])
 
     useEffect(() => {
         if(!router.isReady) return
 
         const basePath = localStorage.getItem('basePath')
+        const format = localStorage.getItem('format')
         const baseUrl = localStorage.getItem('baseUrl')
         const token = localStorage.getItem('token')
         const deviceId = localStorage.getItem('deviceId')
 
-        let onHandleRefresh = setInterval(async () => {
-            try {
-                const { data: deviceResponse } = await axios.get<GetDeviceResponse>(`${baseUrl}/api/itaskdevices/${deviceId}`, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    }
-                })
-                if(device?.id !== deviceResponse.id ||
-                   device?.iTaskMenuId !== deviceResponse.iTaskMenuId ||
-                   device?.departmentId !== deviceResponse.departmentId ||
-                   device?.name !== deviceResponse.name ||
-                   device?.isPinCode !== deviceResponse.isPinCode ||
-                   device?.pinCode !== deviceResponse.pinCode ||
-                   device?.isSettings !== deviceResponse.isSettings ||
-                   device?.lastConnection !== deviceResponse.lastConnection) {
-                    setDeviceName(deviceResponse.name)
-                    setDevice(deviceResponse)
-                }
-
-                if(deviceResponse.iTaskMenuId) {
-                    const { data: menuResponse } = await axios.get<GetMenuResponse>(`${baseUrl}/api/itaskmenus/${deviceResponse.iTaskMenuId}`, {
-                        headers: {
-                            'Content-Type': 'application/json',
-                            Accept: 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        }
-                    })
-                    if(menu?.id !== menuResponse.id ||
-                       menu?.title !== menuResponse.title ||
-                       menu?.rows !== menuResponse.rows ||
-                       menu?.columns !== menuResponse.columns) setMenu(menuResponse)
-                }
-
-                if(deviceResponse.iTaskMenuId) {
-                    const { data: buttonsResponse } = await axios.get<GetButtonsResponse>(`${baseUrl}/api/itaskmenus/${deviceResponse.iTaskMenuId}/buttons`, {
-                        headers: {
-                            'Content-Type': 'application/json',
-                            Accept: 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        }
-                    })
-
-                    let isEqual = true
-                    if (buttons?.length !== buttonsResponse.entities.length) isEqual = false
-                    else {
-                        for (var index = 0, length = buttons?.length ?? 0; index < length; index++) { 
-                            if (buttons[index]?.id != buttonsResponse.entities[index]?.id ||
-                                buttons[index]?.iTaskMenuId != buttonsResponse.entities[index]?.iTaskMenuId ||
-                                buttons[index]?.taskPresetId != buttonsResponse.entities[index]?.taskPresetId ||
-                                buttons[index]?.row != buttonsResponse.entities[index]?.row ||
-                                buttons[index]?.column != buttonsResponse.entities[index]?.column ||
-                                buttons[index]?.icon != buttonsResponse.entities[index]?.icon ||
-                                buttons[index]?.label != buttonsResponse.entities[index]?.label ||
-                                buttons[index]?.backgroundColor != buttonsResponse.entities[index]?.backgroundColor ||
-                                buttons[index]?.iconColor != buttonsResponse.entities[index]?.iconColor ||
-                                buttons[index]?.feedbackTime != buttonsResponse.entities[index]?.feedbackTime ||
-                                buttons[index]?.feedbackText != buttonsResponse.entities[index]?.feedbackText ||
-                                buttons[index]?.isAllowUndo != buttonsResponse.entities[index]?.isAllowUndo) isEqual = false        
-                        }  
-                    }     
-
-                    if(!isEqual) setButtons(buttonsResponse.entities)
-                }
-                const { data: configResponse } = await axios.get<GetConfigResponse>(`${baseUrl}/api/itasksettings`, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    }
-                })
-                if(config?.applicationBackgroundColor !== configResponse.applicationBackgroundColor ||
-                   config?.isScreenSaverImage !== configResponse.isScreenSaverImage ||
-                   config?.isScreenSaverText !== configResponse.isScreenSaverText ||
-                   config?.screenSaverBackgroundColor !== configResponse.screenSaverBackgroundColor ||
-                   config?.screenSaverImageUrl !== configResponse.screenSaverImageUrl ||
-                   config?.screenSaverText !== configResponse.screenSaverText ||
-                   config?.screenSaverTime !== configResponse.screenSaverTime) { 
-                    if (configResponse.isScreenSaverImage) {
-                        setScreenSaverImageUri(`${(baseUrl ?? '').replace('/api', '/itransport')}/${config?.screenSaverImageUrl?.replace('~', '')}`)
-                    }
-                    else {
-                        setScreenSaverImageUri(`${basePath}/assets/logo-diractive.png`)
-                    }
-    
-                    setConfig(configResponse)
-                }
-
-                const date = (new Date()).toJSON()
-                await axios.patch<number>(`${baseUrl}/api/itaskdevices`, {
-                    id: deviceResponse?.id,
-                    iTaskMenuId: {
-                        value: deviceResponse?.iTaskMenuId,
-                        isChanged: false
-                    },
-                    departmentId: {
-                        value: deviceResponse?.departmentId,
-                        isChanged: false
-                    },
-                    name: {
-                        value: deviceResponse?.name,
-                        isChanged: false
-                    },
-                    isPinCode: {
-                        value: deviceResponse?.isPinCode,
-                        isChanged: false
-                    },
-                    pinCode: {
-                        value: deviceResponse?.pinCode,
-                        isChanged: false
-                    },
-                    isSettings: {
-                        value: deviceResponse?.isSettings,
-                        isChanged: false
-                    },
-                    lastConnectionTime: {
-                        value: date,
-                        isChanged: true
-                    }
-                } as UpdateDeviceRequest, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    }
-                })
-            } catch (error: unknown) {
-                if (axios.isAxiosError(error)) {
-                    switch(error.response?.status) {
-                        case 404: {
-                            const basePath = localStorage.getItem('basePath')
-                            const format = localStorage.getItem('format')
-
-                            localStorage.removeItem('basePath')
-                            localStorage.removeItem('format')
-                            localStorage.removeItem('baseUrl')
-                            localStorage.removeItem('token')
-                            localStorage.removeItem('deviceId')
-
-                            router.push(`${basePath}/loginUser${format}?basePath=${basePath}&format=${format}`)
-
-                            break
-                        }
-                        default: {
-                            toast('Connection failed')
-
-                            console.log('Unexpected error: ', error)
-                            break
-                        }
-                    }
-                } else {
-                    console.log('Unexpected error: ', error)
-                }
-            }
-        }, 60 * 1000)
+        let onHandleRefresh = setInterval(() => refreshData(basePath, format, baseUrl, token, deviceId), 5 * 1000)
 
         return () => {
             clearInterval(onHandleRefresh)
@@ -229,6 +251,7 @@ const Index: FunctionComponent = () => {
             } catch (error: unknown) {
                 if (axios.isAxiosError(error)) {
                     switch(error.response?.status) {
+                        case 401:
                         case 404: {
                             const basePath = localStorage.getItem('basePath')
                             const format = localStorage.getItem('format')
@@ -334,6 +357,8 @@ const Index: FunctionComponent = () => {
 
         router.push(`${basePath}/settings${format}`)
     }
+
+    console.log(isLoading)
 
     return (
         <>

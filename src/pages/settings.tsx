@@ -16,85 +16,93 @@ const Settings: FunctionComponent = () => {
     const { toast } = useToast()
 
     const [deviceName, setDeviceName] = useState<string | undefined>(undefined)
+
     const [isLoading, setIsLoading] = useState<boolean>(false)
+
+    const refreshData = async (basePath: string | null, format: string | null, baseUrl: string | null, token: string | null, deviceId: string | null) => {
+        try {
+            const { data: deviceResponse } = await axios.get<GetDeviceResponse>(`${baseUrl}/api/itaskdevices/${deviceId}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+
+            const date = (new Date()).toJSON()
+            await axios.patch<number>(`${baseUrl}/api/itaskdevices`, {
+                id: deviceResponse?.id,
+                iTaskMenuId: {
+                    value: deviceResponse?.iTaskMenuId,
+                    isChanged: false
+                },
+                departmentId: {
+                    value: deviceResponse?.departmentId,
+                    isChanged: false
+                },
+                name: {
+                    value: deviceResponse?.name,
+                    isChanged: false
+                },
+                isPinCode: {
+                    value: deviceResponse?.isPinCode,
+                    isChanged: false
+                },
+                pinCode: {
+                    value: deviceResponse?.pinCode,
+                    isChanged: false
+                },
+                isSettings: {
+                    value: deviceResponse?.isSettings,
+                    isChanged: false
+                },
+                lastConnectionTime: {
+                    value: date,
+                    isChanged: true
+                }
+            } as UpdateDeviceRequest, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                switch(error.response?.status) {
+                    case 401:
+                    case 404: {
+                        localStorage.removeItem('basePath')
+                        localStorage.removeItem('format')
+                        localStorage.removeItem('baseUrl')
+                        localStorage.removeItem('token')
+                        localStorage.removeItem('deviceId')
+
+                        router.push(`${basePath}/loginUser${format}?basePath=${basePath}&format=${format}`)
+                        break
+                    }
+                    default: {
+                        toast('Connection failed')
+                        console.log('Unexpected error: ', error)
+                        break
+                    }
+                }
+            } else {
+                console.log('Unexpected error: ', error)
+            }
+        }
+    }
 
     useEffect(() => {
         if(!router.isReady) return
 
+        const basePath = localStorage.getItem('basePath')
+        const format = localStorage.getItem('format')
         const baseUrl = localStorage.getItem('baseUrl')
         const token = localStorage.getItem('token')
         const deviceId = localStorage.getItem('deviceId')
 
-        let onHandleRefresh = setInterval(async () => {
-            try {
-                const { data: deviceResponse } = await axios.get<GetDeviceResponse>(`${baseUrl}/api/itaskdevices/${deviceId}`, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    }
-                })
-
-                const date = (new Date()).toJSON()
-                await axios.patch<number>(`${baseUrl}/api/itaskdevices`, {
-                    id: deviceResponse?.id,
-                    iTaskMenuId: {
-                        value: deviceResponse?.iTaskMenuId,
-                        isChanged: false
-                    },
-                    departmentId: {
-                        value: deviceResponse?.departmentId,
-                        isChanged: false
-                    },
-                    name: {
-                        value: deviceResponse?.name,
-                        isChanged: false
-                    },
-                    isPinCode: {
-                        value: deviceResponse?.isPinCode,
-                        isChanged: false
-                    },
-                    pinCode: {
-                        value: deviceResponse?.pinCode,
-                        isChanged: false
-                    },
-                    isSettings: {
-                        value: deviceResponse?.isSettings,
-                        isChanged: false
-                    },
-                    lastConnectionTime: {
-                        value: date,
-                        isChanged: true
-                    }
-                } as UpdateDeviceRequest, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    }
-                })
-            } catch (error: unknown) {
-                if (axios.isAxiosError(error)) {
-                    switch(error.response?.status) {
-                        case 404: {
-                            const basePath = localStorage.getItem('basePath')
-                            const format = localStorage.getItem('format')
-
-                            router.push(`${basePath}/loginUser${format}?basePath=${basePath}&format=${format}`)
-
-                            break
-                        }
-                        default: {
-                            toast('Connection failed')
-                            console.log('Unexpected error: ', error)
-                            break
-                        }
-                    }
-                } else {
-                    console.log('Unexpected error: ', error)
-                }
-            }
-        }, 60 * 1000)
+        let onHandleRefresh = setInterval(() => refreshData(basePath, format, baseUrl, token, deviceId), 5 * 1000)
 
         return () => {
             clearInterval(onHandleRefresh)
@@ -168,6 +176,7 @@ const Settings: FunctionComponent = () => {
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
                 switch(error.response?.status) {
+                    case 401:
                     case 404: {
                         const basePath = localStorage.getItem('basePath')
                         const format = localStorage.getItem('format')
